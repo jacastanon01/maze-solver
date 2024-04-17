@@ -12,7 +12,7 @@ class Line:
         self.point1 = point1
         self.point2 = point2
 
-    def draw(self, canvas: Canvas, fill_color: str) -> None:
+    def draw(self, canvas: Canvas, fill_color: str = "black") -> None:
         x1 = self.point1.x
         y1 = self.point1.y
         x2 = self.point2.x
@@ -22,8 +22,6 @@ class Line:
 
 
 class Screen:
-    from line import Line
-
     def __init__(self, width: int, height: int):
         self.width = width
         self.height = height
@@ -53,7 +51,8 @@ class Screen:
 
 
 class Cell:
-    def __init__(self, screen, x1: int, y1: int, x2: int, y2: int):
+    def __init__(self, screen: Screen, x1: int, y1: int, x2: int, y2: int):
+        self._window = screen
         self.has_left_wall = True
         self.has_top_wall = True
         self.has_right_wall = True
@@ -62,7 +61,25 @@ class Cell:
         self._y1 = y1
         self._x2 = x2
         self._y2 = y2
-        self._win = False
 
-    def draw(self, canvas, top_left: Point, bottom_right: Point) -> None:
-        pass
+    def draw(self) -> None:
+        if self.has_left_wall:
+            self._window.draw_line(
+                Line(Point(self._x1, self._y1), Point(self._x1, self._y2)),
+                "black",
+            )
+        if self.has_top_wall:
+            self._window.draw_line(
+                Line(Point(self._x1, self._y1), Point(self._x2, self._y1)),
+                "black",
+            )
+        if self.has_right_wall:
+            self._window.draw_line(
+                Line(Point(self._x2, self._y1), Point(self._x2, self._y2)),
+                "black",
+            )
+        if self.has_bottom_wall:
+            self._window.draw_line(
+                Line(Point(self._x2, self._y2), Point(self._x1, self._y2)),
+                "black",
+            )
