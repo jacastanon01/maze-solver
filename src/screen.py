@@ -1,6 +1,26 @@
 from tkinter import Tk, BOTH, Canvas
 
 
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+
+
+class Line:
+    def __init__(self, point1: Point, point2: Point):
+        self.point1 = point1
+        self.point2 = point2
+
+    def draw(self, canvas: Canvas, fill_color: str) -> None:
+        x1 = self.point1.x
+        y1 = self.point1.y
+        x2 = self.point2.x
+        y2 = self.point2.y
+        canvas.create_line(x1, y1, x2, y2, fill=fill_color, width=2)
+        canvas.pack(fill=BOTH, expand=1)
+
+
 class Screen:
     from line import Line
 
@@ -30,3 +50,19 @@ class Screen:
 
     def close(self) -> None:
         self._is_window_running = False
+
+
+class Cell:
+    def __init__(self, screen, x1: int, y1: int, x2: int, y2: int):
+        self.has_left_wall = True
+        self.has_top_wall = True
+        self.has_right_wall = True
+        self.has_bottom_wall = True
+        self._x1 = x1
+        self._y1 = y1
+        self._x2 = x2
+        self._y2 = y2
+        self._win = False
+
+    def draw(self, canvas, top_left: Point, bottom_right: Point) -> None:
+        pass

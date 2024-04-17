@@ -1,6 +1,4 @@
-from screen import Screen
-from line import Line
-from point import Point
+from screen import Screen, Line, Point
 
 
 def main() -> None:
