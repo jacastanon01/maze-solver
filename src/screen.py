@@ -34,7 +34,7 @@ class Screen:
         self._is_window_running = False
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
 
-    def draw_line(self, line: Line, fill_color: str) -> None:
+    def draw_line(self, line: Line, fill_color: str = "black") -> None:
         line.draw(self._canvas, fill_color)
 
     def redraw(self) -> None:
@@ -51,35 +51,53 @@ class Screen:
 
 
 class Cell:
-    def __init__(self, screen: Screen, x1: int, y1: int, x2: int, y2: int):
+    def __init__(self, screen: Screen):
         self._window = screen
         self.has_left_wall = True
         self.has_top_wall = True
         self.has_right_wall = True
         self.has_bottom_wall = True
+        self._x1 = None
+        self._y1 = None
+        self._x2 = None
+        self._y2 = None
+
+    def draw(self, x1: int, y1: int, x2: int, y2: int) -> None:
         self._x1 = x1
         self._y1 = y1
         self._x2 = x2
         self._y2 = y2
 
-    def draw(self) -> None:
         if self.has_left_wall:
             self._window.draw_line(
-                Line(Point(self._x1, self._y1), Point(self._x1, self._y2)),
-                "black",
+                Line(Point(x1, y1), Point(x1, y2)),
             )
         if self.has_top_wall:
             self._window.draw_line(
-                Line(Point(self._x1, self._y1), Point(self._x2, self._y1)),
-                "black",
+                Line(Point(x1, y1), Point(x2, y1)),
             )
         if self.has_right_wall:
             self._window.draw_line(
-                Line(Point(self._x2, self._y1), Point(self._x2, self._y2)),
-                "black",
+                Line(Point(x2, y1), Point(x2, y2)),
             )
         if self.has_bottom_wall:
             self._window.draw_line(
-                Line(Point(self._x2, self._y2), Point(self._x1, self._y2)),
-                "black",
+                Line(Point(x1, y2), Point(x2, y2)),
             )
+
+    def draw_move(self, to_cell: "Cell", undo=False) -> None:
+        line_color = "gray"
+
+        if undo:
+            print("HELLO")
+            line_color = "red"
+
+        x_source = (self._x1 + self._x2) // 2
+        y_source = (self._y1 + self._y2) // 2
+
+        x_destination = (to_cell._x1 + to_cell._x2) // 2
+        y_destination = (to_cell._y1 + to_cell._y2) // 2
+
+        line = Line(Point(x_source, y_source), Point(x_destination, y_destination))
+
+        self._window.draw_line(line, fill_color=line_color)
