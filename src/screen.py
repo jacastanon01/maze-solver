@@ -1,7 +1,7 @@
 from tkinter import Tk, BOTH, Canvas
 
 
-class Window:
+class Screen:
     from line import Line
 
     def __init__(self, width: int, height: int):

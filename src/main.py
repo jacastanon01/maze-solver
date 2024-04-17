@@ -1,10 +1,10 @@
-from window import Window
+from screen import Screen
 from line import Line
 from point import Point
 
 
 def main() -> None:
-    screen = Window(800, 800)
+    screen = Screen(800, 800)
 
     point1 = Point(0, 0)
     point2 = Point(400, 400)
