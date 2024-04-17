@@ -89,7 +89,6 @@ class Cell:
         line_color = "gray"
 
         if undo:
-            print("HELLO")
             line_color = "red"
 
         x_source = (self._x1 + self._x2) // 2
