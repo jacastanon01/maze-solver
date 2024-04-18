@@ -19,9 +19,18 @@ class Maze:
     animate -> None
     """
 
-    from screen import Cell
+    from screen import Cell, Screen
 
-    def __init__(self, x, y, num_cols, num_rows, cell_size_x, cell_size_y, screen):
+    def __init__(
+        self,
+        x: int,
+        y: int,
+        num_cols: int,
+        num_rows: int,
+        cell_size_x: int,
+        cell_size_y: int,
+        screen: Screen,
+    ):
         self.x = x
         self.y = y
         self.num_cols = num_cols
@@ -32,4 +41,5 @@ class Maze:
         self._create_cells()
 
     def _create_cells(self):
+        """Function that creates matrix of cells"""
         self._cells = [Cell(self._window) for i in range(self.num_cols + 1)]
