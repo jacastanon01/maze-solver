@@ -4,12 +4,12 @@ class Maze:
 
     Attributes
     -----
-    x : int
-    y : int
-    num_cols : int
-    num_rows : int
-    cell_size_x : int
-    cell_size_y : int
+    x : int : Represents how many pixels from the left maze should start
+    y : int : Represents how many pixels from the top maze should start
+    num_cols : int : Total cell columns
+    num_rows : int : Total cell rows
+    cell_size_x : int : Cell width
+    cell_size_y : int : Cell height
     window : Screen
 
     Methods
