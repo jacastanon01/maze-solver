@@ -48,7 +48,7 @@ class Screen:
 
     Methods
     -----
-    draw_line(line : Line, fill_color: str) -> None
+    draw_line(line : Line, fill_color : str) -> None
     redraw -> None
     wait_for_close -> None
     close -> None
@@ -94,12 +94,17 @@ class Cell:
     -----
     window : Screen
         Represents Tkinter window to place cells
-    has_left_wall, has_right_wall, has_top_wall, has_bottom_wall : bool
+    has_{side}_wall: bool
         Flags to indicate which walls to draw on cell
     x1, y1 : int
         Represents bottom-left point of cell. To be used to draw walls
     x2, y2 : int
         Represents top-right point of cell. To be used to draw walls
+
+    Methods
+    -----
+    draw(x1 : int, y1 : int, x2 : int, y2 : int) -> None
+    draw_move(to_cell : Cell, undo ?: bool) -> None
     """
 
     def __init__(self, screen: Screen):
