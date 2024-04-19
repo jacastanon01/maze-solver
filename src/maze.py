@@ -41,5 +41,15 @@ class Maze:
         self._create_cells()
 
     def _create_cells(self):
-        """Function that creates matrix of cells and draws to screen"""
-        self._cells = [Cell(self._window) for i in range(self.num_cols + 1)]
+        """Creates matrix of cells and draws to screen"""
+        self._cells = [
+            [Cell(self._window) for _ in range(self.num_cols + 1)]
+            for _i in range(self.num_rows + 1)
+        ]
+
+        for i in range(len(self._cells)):
+            for j in len(i):
+                self._draw_cells(i, j)
+
+    def _draw_cells(self, i: int, j: int):
+        """Calculates the x/y position and draws the cell"""

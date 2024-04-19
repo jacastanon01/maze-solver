@@ -159,7 +159,7 @@ class Cell:
         -----
         to_cell : Cell
             Specifies next cell to draw line toward
-        undo : bool
+        undo ?: bool
             Indicates whether line is backtracking
         """
         line_color = "gray"
