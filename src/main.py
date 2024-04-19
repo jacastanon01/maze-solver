@@ -1,6 +1,6 @@
 from random import randint, choice
 
-from screen import Screen, Line, Point, Cell
+from screen import Screen
 
 
 def main() -> None:

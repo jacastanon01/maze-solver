@@ -36,7 +36,73 @@ class Line:
         canvas.pack(fill=BOTH, expand=1)
 
 
-class Screen:
+class Window:
+    """
+    Class that represents the Tkinter window
+
+    Attributes
+    -----
+    width, height : int
+    root : Tk
+
+    Methods
+    -----
+    wait_for_close -> None
+    close -> None
+    """
+
+    def __init__(self, width: int, height: int):
+        self.width = width
+        self.height = height
+        self.root = Tk()
+        self.root.title("Maze Solver")
+        self.is_window_running = False
+        self.root.protocol("WM_DELETE_WINDOW", self.close)
+
+    def wait_for_close(self) -> None:
+        """Function that checks if window is still open before drawing to it"""
+        self.is_window_running = True
+        while self.is_window_running:
+            self.redraw()
+
+    def close(self) -> None:
+        """Function to terminate window"""
+        self.is_window_running = False
+
+    def redraw(self) -> None:
+        """Function that updates Tkinter root"""
+        self.root.update_idletasks()
+        self.root.update()
+
+
+class CanvasManager:
+    """
+    Class that represents the Tkinter canvas manager
+
+    Attributes
+    -----
+    canvas : Tk.Canvas
+    window : Window
+
+    Methods
+    -----
+    draw_line(line : Line, fill_color : str) -> None
+    """
+
+    def __init__(self, window: Window):
+        self.window = window
+        self.canvas = Canvas(
+            self.window.root,
+            bg="white",
+            height=self.window.height,
+            width=self.window.width,
+        )
+        self.canvas.pack(fill=BOTH, expand=True)
+
+    def draw_line(self, line: Line, fill_color: str = "black") -> None:
+        """Function that calls draw method from Line instance with color"""
+        line.draw(self.canvas, fill_color)
+
     """
     Class that represents Tkinter canvas
 
@@ -84,95 +150,3 @@ class Screen:
     def close(self) -> None:
         """Function to terminate window"""
         self._is_window_running = False
-
-
-class Cell:
-    """
-    A class to represent different cells in a maze
-
-    Attributes
-    -----
-    window : Screen
-        Represents Tkinter window to place cells
-    has_{side}_wall: bool
-        Flags to indicate which walls to draw on cell
-    x1, y1 : int
-        Represents bottom-left point of cell. To be used to draw walls
-    x2, y2 : int
-        Represents top-right point of cell. To be used to draw walls
-
-    Methods
-    -----
-    draw(x1 : int, y1 : int, x2 : int, y2 : int) -> None
-    draw_move(to_cell : Cell, undo ?: bool) -> None
-    """
-
-    def __init__(self, screen: Screen):
-        self._window = screen
-        self.has_left_wall = True
-        self.has_top_wall = True
-        self.has_right_wall = True
-        self.has_bottom_wall = True
-        self._x1 = None
-        self._y1 = None
-        self._x2 = None
-        self._y2 = None
-
-    def draw(self, x1: int, y1: int, x2: int, y2: int) -> None:
-        """
-        Draws walls of cell depending on point positions and wall flags
-
-        Parameters
-        -----
-        x1, y1 : int
-            Represents bottom-left point of cell. To be used to draw walls
-        x2, y2 : int
-            Represents top-right point of cell. To be used to draw walls
-        """
-        self._x1 = x1
-        self._y1 = y1
-        self._x2 = x2
-        self._y2 = y2
-
-        if self.has_left_wall:
-            self._window.draw_line(
-                Line(Point(x1, y1), Point(x1, y2)),
-            )
-        if self.has_top_wall:
-            self._window.draw_line(
-                Line(Point(x1, y1), Point(x2, y1)),
-            )
-        if self.has_right_wall:
-            self._window.draw_line(
-                Line(Point(x2, y1), Point(x2, y2)),
-            )
-        if self.has_bottom_wall:
-            self._window.draw_line(
-                Line(Point(x1, y2), Point(x2, y2)),
-            )
-
-    def draw_move(self, to_cell: "Cell", undo=False) -> None:
-        """
-        Draws lines that navigates between cells
-
-        Parameters
-        -----
-        to_cell : Cell
-            Specifies next cell to draw line toward
-        undo ?: bool
-            Indicates whether line is backtracking
-        """
-        line_color = "gray"
-
-        if undo:
-            line_color = "red"
-
-        x_source = (self._x1 + self._x2) // 2
-        y_source = (self._y1 + self._y2) // 2
-
-        x_destination = (to_cell._x1 + to_cell._x2) // 2
-        y_destination = (to_cell._y1 + to_cell._y2) // 2
-
-        line = Line(Point(x_source, y_source), Point(x_destination, y_destination))
-
-        self._window.draw_line(line, fill_color=line_color)
