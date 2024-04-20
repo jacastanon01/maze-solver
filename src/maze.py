@@ -1,4 +1,4 @@
-from screen import Screen
+from screen import Window, CanvasManager
 
 
 class Cell:
@@ -22,16 +22,16 @@ class Cell:
     draw_move(to_cell : Cell, undo ?: bool) -> None
     """
 
-    def __init__(self, screen: Screen):
-        self._window = screen
+    def __init__(self, window: Window):
+        self._window = window
         self.has_left_wall = True
         self.has_top_wall = True
         self.has_right_wall = True
         self.has_bottom_wall = True
-        self._x1 = None
-        self._y1 = None
-        self._x2 = None
-        self._y2 = None
+        self.x1 = None
+        self.y1 = None
+        self.x2 = None
+        self.y2 = None
 
     def draw(self, x1: int, y1: int, x2: int, y2: int) -> None:
         """
@@ -44,24 +44,24 @@ class Cell:
         x2, y2 : int
             Represents top-right point of cell. To be used to draw walls
         """
-        self._x1 = x1
-        self._y1 = y1
-        self._x2 = x2
-        self._y2 = y2
+        self.x1 = x1
+        self.y1 = y1
+        self.x2 = x2
+        self.y2 = y2
 
-        if self.has_left_wall:
+        if self._has_left_wall:
             self._window.draw_line(
                 Line(Point(x1, y1), Point(x1, y2)),
             )
-        if self.has_top_wall:
+        if self._has_top_wall:
             self._window.draw_line(
                 Line(Point(x1, y1), Point(x2, y1)),
             )
-        if self.has_right_wall:
+        if self._has_right_wall:
             self._window.draw_line(
                 Line(Point(x2, y1), Point(x2, y2)),
             )
-        if self.has_bottom_wall:
+        if self._has_bottom_wall:
             self._window.draw_line(
                 Line(Point(x1, y2), Point(x2, y2)),
             )
@@ -82,11 +82,11 @@ class Cell:
         if undo:
             line_color = "red"
 
-        x_source = (self._x1 + self._x2) // 2
-        y_source = (self._y1 + self._y2) // 2
+        x_source = (self.x1 + self.x2) // 2
+        y_source = (self.y1 + self.y2) // 2
 
-        x_destination = (to_cell._x1 + to_cell._x2) // 2
-        y_destination = (to_cell._y1 + to_cell._y2) // 2
+        x_destination = (to_cell.x1 + to_cell.x2) // 2
+        y_destination = (to_cell.y1 + to_cell.y2) // 2
 
         line = Line(Point(x_source, y_source), Point(x_destination, y_destination))
 
@@ -123,26 +123,26 @@ class Maze:
         num_rows: int,
         cell_size_x: int,
         cell_size_y: int,
-        screen: Screen,
+        window: Window,
     ):
+        self._window = window
+        self._create_cells()
         self.x = x
         self.y = y
         self.num_cols = num_cols
         self.num_rows = num_rows
         self.cell_size_x = cell_size_x
         self.cell_size_y = cell_size_y
-        self._window = screen
-        self._create_cells()
 
     def _create_cells(self):
         """Creates matrix of cells and draws to screen"""
         self._cells = [
             [Cell(self._window) for _ in range(self.num_cols + 1)]
-            for _i in range(self.num_rows + 1)
+            for _ in range(self.num_rows + 1)
         ]
 
-        for i in range(len(self._cells)):
-            for j in len(i):
+        for i in range(len(self._cells + 1)):
+            for j in len(i + 1):
                 self._draw_cells(i, j)
 
     def _draw_cells(self, i: int, j: int):

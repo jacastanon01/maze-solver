@@ -5,8 +5,16 @@ class Point:
     """Class that represents position on x,y grid"""
 
     def __init__(self, x: int, y: int):
-        self.x = x
-        self.y = y
+        self._x = x
+        self._y = y
+
+    @property
+    def x(self):
+        return self._x
+
+    @property
+    def y(self):
+        return self._y
 
 
 class Line:
@@ -49,30 +57,48 @@ class Window:
     -----
     wait_for_close -> None
     close -> None
+    redraw() ->
+    is_valid_window -> bool
     """
 
     def __init__(self, width: int, height: int):
-        self.width = width
-        self.height = height
-        self.root = Tk()
-        self.root.title("Maze Solver")
-        self.is_window_running = False
-        self.root.protocol("WM_DELETE_WINDOW", self.close)
+        self._width = width
+        self._height = height
+        self.__root = Tk()
+        self.__root.title("Maze Solver")
+        self.__is_window_running = False
+        self.__root.protocol("WM_DELETE_WINDOW", self.close)
 
     def wait_for_close(self) -> None:
-        """Function that checks if window is still open before drawing to it"""
-        self.is_window_running = True
-        while self.is_window_running:
+        """Method that checks if window is still open before drawing to it"""
+        self.__is_window_running = True
+        while self.__is_window_running:
             self.redraw()
 
     def close(self) -> None:
-        """Function to terminate window"""
-        self.is_window_running = False
+        """Method to terminate window"""
+        self.__is_window_running = False
 
     def redraw(self) -> None:
-        """Function that updates Tkinter root"""
-        self.root.update_idletasks()
-        self.root.update()
+        """Method that updates Tkinter root"""
+        self.__root.update_idletasks()
+        self.__root.update()
+
+    def is_valid_window(self) -> bool:
+        """Method that checks if window is still open before drawing to it"""
+        return self.__is_window_running and self.__root.winfo_exists()
+
+    @property
+    def root(self):
+        return self.__root
+
+    @property
+    def width(self):
+        return self._width
+
+    @property
+    def height(self):
+        return self._height
 
 
 class CanvasManager:
@@ -90,63 +116,15 @@ class CanvasManager:
     """
 
     def __init__(self, window: Window):
-        self.window = window
-        self.canvas = Canvas(
-            self.window.root,
+        self._window = window
+        self._canvas = Canvas(
+            self._window.root,
             bg="white",
             height=self.window.height,
             width=self.window.width,
         )
-        self.canvas.pack(fill=BOTH, expand=True)
-
-    def draw_line(self, line: Line, fill_color: str = "black") -> None:
-        """Function that calls draw method from Line instance with color"""
-        line.draw(self.canvas, fill_color)
-
-    """
-    Class that represents Tkinter canvas
-
-    Attributes
-    -----
-    width, height : int
-    root : Tk
-    canvas : Tk.Canvas
-
-    Methods
-    -----
-    draw_line(line : Line, fill_color : str) -> None
-    redraw -> None
-    wait_for_close -> None
-    close -> None
-    """
-
-    def __init__(self, width: int, height: int):
-        self.width = width
-        self.height = height
-        self.__root = Tk()
-        self.__root.title("Maze Solver")
-        self._canvas = Canvas(
-            self.__root, bg="white", height=self.height, width=self.width
-        )
         self._canvas.pack(fill=BOTH, expand=True)
-        self._is_window_running = False
-        self.__root.protocol("WM_DELETE_WINDOW", self.close)
 
     def draw_line(self, line: Line, fill_color: str = "black") -> None:
-        """Function that calls draw method from Line instance with color"""
+        """Method that calls draw method from Line instance with color"""
         line.draw(self._canvas, fill_color)
-
-    def redraw(self) -> None:
-        """Function that updates Tkinter root"""
-        self.__root.update_idletasks()
-        self.__root.update()
-
-    def wait_for_close(self) -> None:
-        """Function that checks if window is still open before drawing to it"""
-        self._is_window_running = True
-        while self._is_window_running:
-            self.redraw()
-
-    def close(self) -> None:
-        """Function to terminate window"""
-        self._is_window_running = False
