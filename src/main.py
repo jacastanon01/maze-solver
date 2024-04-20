@@ -1,11 +1,16 @@
 from random import randint, choice
 
+from maze import Maze, MazeDrawer
 from screen import Window
 
 
 def main() -> None:
     window = Window(800, 800)
-    render_maze(window)
+    my_maze = Maze(10, 10, 6, 4, 10, 10)
+    maze = MazeDrawer(my_maze, window)
+    maze._create_cells()
+    window.start()
+    # render_maze(window)
     # render_grid(window)
     # c1 = Cell(window)
     # c1.has_right_wall = False
@@ -34,32 +39,32 @@ def main() -> None:
     window.wait_for_close()
 
 
-def render_maze(screen: Screen) -> None:
-    n = randint(3, 8)
-    x, y = 0, 0
-    for i in range(n):
-        c = Cell(screen)
-        x2 = x + 50
-        y2 = y + 50
+# def render_maze(screen: Screen) -> None:
+#     n = randint(3, 8)
+#     x, y = 0, 0
+#     for i in range(n):
+#         c = Cell(screen)
+#         x2 = x + 50
+#         y2 = y + 50
 
-        if i >> 1 == 0:
-            x += 50
-            x2 += 50
-        else:
-            y += 50
-            y2 += 50
-        c.draw(x, y, x2, y2)
+#         if i >> 1 == 0:
+#             x += 50
+#             x2 += 50
+#         else:
+#             y += 50
+#             y2 += 50
+#         c.draw(x, y, x2, y2)
 
 
-def render_grid(screen: Screen) -> None:
-    for row in range(0, 800, 200):
-        for col in range(0, 800, 200):
-            start_x1 = col
-            start_y1 = row
-            end_x2 = col + 200
-            end_y2 = row + 200
-            cell = Cell(screen)
-            cell.draw(start_x1, start_y1, end_x2, end_y2)
+# def render_grid(screen: Screen) -> None:
+#     for row in range(0, 800, 200):
+#         for col in range(0, 800, 200):
+#             start_x1 = col
+#             start_y1 = row
+#             end_x2 = col + 200
+#             end_y2 = row + 200
+#             cell = Cell(screen)
+#             cell.draw(start_x1, start_y1, end_x2, end_y2)
 
 
 if __name__ == "__main__":

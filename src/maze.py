@@ -1,6 +1,6 @@
 import time
 
-from screen import Window
+from screen import Window, Line, Point
 
 
 class Cell:
@@ -51,19 +51,19 @@ class Cell:
         self.x2 = x2
         self.y2 = y2
 
-        if self._has_left_wall:
+        if self.has_left_wall:
             self._window.draw_line(
                 Line(Point(x1, y1), Point(x1, y2)),
             )
-        if self._has_top_wall:
+        if self.has_top_wall:
             self._window.draw_line(
                 Line(Point(x1, y1), Point(x2, y1)),
             )
-        if self._has_right_wall:
+        if self.has_right_wall:
             self._window.draw_line(
                 Line(Point(x2, y1), Point(x2, y2)),
             )
-        if self._has_bottom_wall:
+        if self.has_bottom_wall:
             self._window.draw_line(
                 Line(Point(x1, y2), Point(x2, y2)),
             )
