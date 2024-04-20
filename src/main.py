@@ -1,10 +1,10 @@
 from random import randint, choice
 
-from screen import Screen
+from screen import Window
 
 
 def main() -> None:
-    window = Screen(800, 800)
+    window = Window(800, 800)
     render_maze(window)
     # render_grid(window)
     # c1 = Cell(window)
