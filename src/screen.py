@@ -75,8 +75,8 @@ class Window:
         self._canvas = Canvas(
             self.__root,
             bg="white",
-            height=self._window.height,
-            width=self._window.width,
+            height=self._height,
+            width=self._width,
         )
 
         self.__root.title("Maze Solver")
@@ -125,5 +125,3 @@ class Window:
     def is_valid_window(self) -> bool:
         """Method that checks if window is still open before drawing to it"""
         return self.__root.winfo_exists()
-
-
