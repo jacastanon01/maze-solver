@@ -1,4 +1,4 @@
-from tkinter import Tk, BOTH, Canvas
+from tkinter import Tk, BOTH, Canvas, TclError
 
 
 class Point:
@@ -9,20 +9,12 @@ class Point:
         self._y = y
 
     @property
-    def x(self):
+    def x(self) -> int:
         return self._x
 
-    @x.setter
-    def x(self, value):
-        self._x = value
-
     @property
-    def y(self):
+    def y(self) -> int:
         return self._y
-
-    @y.setter
-    def y(self, value):
-        self._y = value
 
 
 class Line:
@@ -51,6 +43,10 @@ class Line:
         canvas.create_line(x1, y1, x2, y2, fill=fill_color, width=2)
         canvas.pack(fill=BOTH, expand=1)
 
+    # @property
+    # def x1(self):
+    #     return self.point1.x
+
 
 class Window:
     """
@@ -61,6 +57,8 @@ class Window:
     width : int
     height : int
 
+    Methods
+    -----
     wait_for_close -> None
     start() -> None
     close -> None
@@ -84,15 +82,15 @@ class Window:
         self._canvas.pack(fill=BOTH, expand=True)
 
     @property
-    def root(self):
+    def root(self) -> Tk:
         return self.__root
 
     @property
-    def width(self):
+    def width(self) -> int:
         return self._width
 
     @property
-    def height(self):
+    def height(self) -> int:
         return self._height
 
     def draw_line(self, line: Line, fill_color: str = "black") -> None:
@@ -103,9 +101,11 @@ class Window:
 
     def wait_for_close(self) -> None:
         """Method that checks if window is still open before drawing to it"""
-        # self.__is_window_running = True
-        while self.is_valid_window():
-            self.redraw()
+        try:
+            while self.is_valid_window():
+                self.redraw()
+        except TclError:
+            pass
 
     def start(self) -> None:
         """Starts the Tkinter window"""
@@ -114,7 +114,8 @@ class Window:
     def close(self) -> None:
         """Method to terminate window"""
         # self.__is_window_running = False
-        self.__root.destroy()
+        if self.is_valid_window():
+            self.__root.destroy()
 
     def redraw(self) -> None:
         """Method that updates Tkinter root"""
@@ -124,4 +125,7 @@ class Window:
 
     def is_valid_window(self) -> bool:
         """Method that checks if window is still open before drawing to it"""
-        return self.__root.winfo_exists()
+        try:
+            return self.__root.winfo_exists()
+        except TclError:
+            return False

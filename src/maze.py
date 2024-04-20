@@ -107,7 +107,12 @@ class Maze:
     num_rows : int : Total cell rows
     cell_size_x : int : Cell width
     cell_size_y : int : Cell height
-    cells : list[Cell] : List of cells in the maze
+    cells : list[list][Cell] : List of cells in the maze
+
+    Methods
+    -----
+    init_cells -> None : Initializes the matrix of a maze
+    get_cell(i: int, j: int) -> Cell : Returns the cell at the specified row and column
     """
 
     def __init__(
@@ -159,13 +164,13 @@ class Maze:
     def cell_size_y(self) -> int:
         return self._cell_size_y
 
-    def init_cells(self, win: Window):
+    def init_cells(self, win: Window) -> None:
         """Initializes the matrix of a maze"""
         self._cells = [
             [Cell(win) for _ in range(self._num_cols)] for _ in range(self._num_rows)
         ]
 
-    def get_cell(self, row: int, col: int):
+    def get_cell(self, row: int, col: int) -> Cell | None:
         """Returns the cell at the specified row and column."""
         if 0 <= row < self._num_rows and 0 <= col < self._num_cols:
             return self._cells[row][col]
@@ -192,7 +197,7 @@ class MazeDrawer:
         self._window = window
         self._maze.init_cells(self._window)
 
-    def _create_cells(self):
+    def _create_cells(self) -> None:
         """Creates matrix of cells to draw to screen"""
         for i in range(self._maze.num_rows):
             for j in range(self._maze.num_cols):
