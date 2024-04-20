@@ -1,6 +1,6 @@
 import time
 
-from screen import Window, CanvasManager
+from screen import Window
 
 
 class Cell:
@@ -159,12 +159,18 @@ class Maze:
     def cell_size_y(self) -> int:
         return self._cell_size_y
 
-    def init_cells(self):
+    def init_cells(self, win: Window):
         """Initializes the matrix of a maze"""
         self._cells = [
-            [None for _ in range(self._maze.num_cols + 1)]
-            for _ in range(self._maze.num_rows + 1)
+            [Cell(win) for _ in range(self._num_cols)] for _ in range(self._num_rows)
         ]
+
+    def get_cell(self, row: int, col: int):
+        """Returns the cell at the specified row and column."""
+        if 0 <= row < self._num_rows and 0 <= col < self._num_cols:
+            return self._cells[row][col]
+        else:
+            return None
 
 
 class MazeDrawer:
@@ -181,51 +187,60 @@ class MazeDrawer:
     animate -> None
     """
 
-    def __init__(self, maze: Maze, widow: Window):
+    def __init__(self, maze: Maze, window: Window):
         self._maze = maze
         self._window = window
+        self._maze.init_cells(self._window)
+
+    def _create_cells(self):
+        """Creates matrix of cells to draw to screen"""
+        for i in range(self._maze.num_rows):
+            for j in range(self._maze.num_cols):
+                self._draw_cells(i, j)
+
+    def _draw_cells(self, i: int, j: int) -> None:
+        """Calculates the x/y positions and draws the cell"""
+        cell = self._maze.get_cell(i, j)
+
+        cell_x1 = self._maze.x + i * self._maze.cell_size_x
+        cell_y1 = self._maze.y + j * self._maze.cell_size_y
+        cell_x2 = cell_x1 + self._maze.cell_size_x
+        cell_y2 = cell_y1 + self._maze.cell_size_y
+
+        cell.draw(cell_x1, cell_y1, cell_x2, cell_y2)
+        self._animate()
 
     def _animate(self) -> None:
         """Animates maze by drawing cells one at a time and allows us to visulize our algorithm"""
         self._window.redraw()
         time.sleep(0.05)
 
-    def _draw_cells(self, i: int, j: int) -> None:
-        """Calculates the x/y position and draws the cell"""
-        cell_x1 = self._maze.x + i * self._maze.cell_size_x
-        cell_y1 = self._maze.y + j * self._maze.cell_size_y
-        cell_x2 = cell_x1 + self.cell_size_x
-        cell_y2 = cell_y1 + self.cell_size_y
-
-        self._maze._cells[i][j].draw(cell_x1, cell_y1, cell_x2, cell_y2)
-        self._animate()
-
 
 # TODO: Decouple the drawing logic from maze class
 
 
-class MazeGenerator:
-    """
-    Generates a matrix of cells and handles behavior to re-render maze
+# class MazeGenerator:
+#     """
+#     Generates a matrix of cells and handles behavior to re-render maze
 
-    Attributes
-    -----
-    maze : Maze
+#     Attributes
+#     -----
+#     maze : Maze
 
-    Methods
-    -----
-    create_cells -> None
-    """
+#     Methods
+#     -----
+#     create_cells -> None
+#     """
 
-    def __init__(self, maze: Maze, window: Window):
-        self._window = window
-        self._maze = maze
+#     def __init__(self, maze: Maze, window: Window):
+#         self._window = window
+#         self._maze = maze
 
-    def _create_cells(self):
-        """Creates matrix of cells to draw to screen"""
-        self._maze.init_cells()
-        drawer = MazeDrawer(self._maze, self._window)
-        for i in range(self._maze.num_rows + 1):
-            for j in range(self._maze.num_cols + 1):
-                self._maze._cells[i][j] = Cell(self._window)
-                drawer._draw_cells(i, j)
+#     def _create_cells(self):
+#         """Creates matrix of cells to draw to screen"""
+#         self._maze.init_cells()
+#         drawer = MazeDrawer(self._maze, self._window)
+#         for i in range(self._maze.num_rows + 1):
+#             for j in range(self._maze.num_cols + 1):
+#                 self._maze._cells[i][j] = Cell(self._window)
+#                 drawer._draw_cells(i, j)
