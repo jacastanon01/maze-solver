@@ -27,7 +27,7 @@ class Line:
 
     Methods
     -----
-    draw(canvas : Tk.Canvas, fill_color : str) -> None
+    draw(canvas : Tk.Canvas, fill_color ?: str) -> None
     """
 
     def __init__(self, point1: Point, point2: Point):
@@ -50,12 +50,11 @@ class Window:
 
     Attributes
     -----
-    width, height : int
-    root : Tk
+    width : int
+    height : int
 
-    Methods
-    -----
     wait_for_close -> None
+    start() -> None
     close -> None
     redraw() ->
     is_valid_window -> bool
@@ -66,32 +65,14 @@ class Window:
         self._height = height
         self.__root = Tk()
         self.__root.title("Maze Solver")
-        self.__is_window_running = False
-        self.__root.mainloop()
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
-
-    def wait_for_close(self) -> None:
-        """Method that checks if window is still open before drawing to it"""
-        self.__is_window_running = True
-        while self.__is_window_running:
-            self.redraw()
-
-        # def start(self):
-        """Starts the Tkinter window"""
-        # self.__root.mainloop()
-
-    def close(self) -> None:
-        """Method to terminate window"""
-        self.__is_window_running = False
-
-    def redraw(self) -> None:
-        """Method that updates Tkinter root"""
-        self.__root.update_idletasks()
-        self.__root.update()
-
-    def is_valid_window(self) -> bool:
-        """Method that checks if window is still open before drawing to it"""
-        return self.__is_window_running and self.__root.winfo_exists()
+        self._canvas = Canvas(
+            self._window.root,
+            bg="white",
+            height=self._window.height,
+            width=self._window.width,
+        )
+        self._canvas.pack(fill=BOTH, expand=True)
 
     @property
     def root(self):
@@ -105,30 +86,47 @@ class Window:
     def height(self):
         return self._height
 
+    def wait_for_close(self) -> None:
+        """Method that checks if window is still open before drawing to it"""
+        # self.__is_window_running = True
+        while self.is_valid_window():
+            self.redraw()
+
+    def start(self):
+        """Starts the Tkinter window"""
+        self.__root.mainloop()
+
+    def close(self) -> None:
+        """Method to terminate window"""
+        # self.__is_window_running = False
+        self.__root.destroy()
+
+    def redraw(self) -> None:
+        """Method that updates Tkinter root"""
+        if self.is_valid_window():
+            self.__root.update_idletasks()
+            self.__root.update()
+
+    def is_valid_window(self) -> bool:
+        """Method that checks if window is still open before drawing to it"""
+        return self.__root.winfo_exists()
+
 
 class CanvasManager:
     """
-    Class that represents the Tkinter canvas manager
+    Handle behavior of Canvas instance
 
     Attributes
     -----
     canvas : Tk.Canvas
-    window : Window
 
     Methods
     -----
     draw_line(line : Line, fill_color : str) -> None
     """
 
-    def __init__(self, window: Window):
-        self._window = window
-        self._canvas = Canvas(
-            self._window.root,
-            bg="white",
-            height=self.window.height,
-            width=self.window.width,
-        )
-        self._canvas.pack(fill=BOTH, expand=True)
+    def __init__(self, canvas: Canvas):
+        self._canvas = canvas
 
     def draw_line(self, line: Line, fill_color: str = "black") -> None:
         """Method that calls draw method from Line instance with color"""
