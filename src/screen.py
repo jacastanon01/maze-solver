@@ -67,6 +67,7 @@ class Window:
         self.__root = Tk()
         self.__root.title("Maze Solver")
         self.__is_window_running = False
+        self.__root.mainloop()
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
 
     def wait_for_close(self) -> None:
@@ -74,6 +75,10 @@ class Window:
         self.__is_window_running = True
         while self.__is_window_running:
             self.redraw()
+
+        # def start(self):
+        """Starts the Tkinter window"""
+        # self.__root.mainloop()
 
     def close(self) -> None:
         """Method to terminate window"""
