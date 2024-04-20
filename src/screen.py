@@ -2,7 +2,7 @@ from tkinter import Tk, BOTH, Canvas
 
 
 class Point:
-    """Class that represents position on x,y grid"""
+    """Data Class that represents position on x,y grid"""
 
     def __init__(self, x: int, y: int):
         self._x = x
@@ -12,9 +12,17 @@ class Point:
     def x(self):
         return self._x
 
+    @x.setter
+    def x(self, value):
+        self._x = value
+
     @property
     def y(self):
         return self._y
+
+    @y.setter
+    def y(self, value):
+        self._y = value
 
 
 class Line:
@@ -64,14 +72,15 @@ class Window:
         self._width = width
         self._height = height
         self.__root = Tk()
-        self.__root.title("Maze Solver")
-        self.__root.protocol("WM_DELETE_WINDOW", self.close)
         self._canvas = Canvas(
-            self._window.root,
+            self.__root,
             bg="white",
             height=self._window.height,
             width=self._window.width,
         )
+
+        self.__root.title("Maze Solver")
+        self.__root.protocol("WM_DELETE_WINDOW", self.close)
         self._canvas.pack(fill=BOTH, expand=True)
 
     @property
@@ -86,13 +95,19 @@ class Window:
     def height(self):
         return self._height
 
+    def draw_line(self, line: Line, fill_color: str = "black") -> None:
+        """
+        Responsible for drawing a line on the canvas
+        """
+        line.draw(self._canvas, fill_color)
+
     def wait_for_close(self) -> None:
         """Method that checks if window is still open before drawing to it"""
         # self.__is_window_running = True
         while self.is_valid_window():
             self.redraw()
 
-    def start(self):
+    def start(self) -> None:
         """Starts the Tkinter window"""
         self.__root.mainloop()
 
@@ -112,22 +127,3 @@ class Window:
         return self.__root.winfo_exists()
 
 
-class CanvasManager:
-    """
-    Handle behavior of Canvas instance
-
-    Attributes
-    -----
-    canvas : Tk.Canvas
-
-    Methods
-    -----
-    draw_line(line : Line, fill_color : str) -> None
-    """
-
-    def __init__(self, canvas: Canvas):
-        self._canvas = canvas
-
-    def draw_line(self, line: Line, fill_color: str = "black") -> None:
-        """Method that calls draw method from Line instance with color"""
-        line.draw(self._canvas, fill_color)
