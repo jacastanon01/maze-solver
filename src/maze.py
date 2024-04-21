@@ -42,31 +42,36 @@ class Cell:
         Parameters
         -----
         x1, y1 : int
-            Represents bottom-left point of cell. To be used to draw walls
+            Represents bottom-right point of cell. To be used to draw walls
         x2, y2 : int
-            Represents top-right point of cell. To be used to draw walls
+            Represents top-left point of cell. To be used to draw walls
         """
-        self.x1 = x1
-        self.y1 = y1
-        self.x2 = x2
-        self.y2 = y2
 
-        if self.has_left_wall:
-            self._window.draw_line(
-                Line(Point(x1, y1), Point(x1, y2)),
-            )
-        if self.has_top_wall:
-            self._window.draw_line(
-                Line(Point(x1, y1), Point(x2, y1)),
-            )
-        if self.has_right_wall:
-            self._window.draw_line(
-                Line(Point(x2, y1), Point(x2, y2)),
-            )
-        if self.has_bottom_wall:
-            self._window.draw_line(
-                Line(Point(x1, y2), Point(x2, y2)),
-            )
+        try:
+            self.x1 = x1
+            self.y1 = y1
+            self.x2 = x2
+            self.y2 = y2
+
+            if self.has_left_wall:
+                self._window.draw_line(
+                    Line(Point(x1, y1), Point(x1, y2)),
+                )
+            if self.has_top_wall:
+                self._window.draw_line(
+                    Line(Point(x1, y1), Point(x2, y1)),
+                )
+            if self.has_right_wall:
+                self._window.draw_line(
+                    Line(Point(x2, y2), Point(x2, y1)),
+                )
+            if self.has_bottom_wall:
+                self._window.draw_line(
+                    Line(Point(x2, y2), Point(x1, y2)),
+                )
+
+        except ValueError as e:
+            print(f"{e}")
 
     def draw_move(self, to_cell: "Cell", undo=False) -> None:
         """
@@ -84,13 +89,16 @@ class Cell:
         if undo:
             line_color = "red"
 
-        x_source = (self.x1 + self.x2) // 2
-        y_source = (self.y1 + self.y2) // 2
+        center_x_source = (self.x1 + self.x2) // 2
+        center_y_source = (self.y1 + self.y2) // 2
 
-        x_destination = (to_cell.x1 + to_cell.x2) // 2
-        y_destination = (to_cell.y1 + to_cell.y2) // 2
+        center_x_destination = (to_cell.x1 + to_cell.x2) // 2
+        center_y_destination = (to_cell.y1 + to_cell.y2) // 2
 
-        line = Line(Point(x_source, y_source), Point(x_destination, y_destination))
+        line = Line(
+            Point(center_x_source, center_y_source),
+            Point(center_x_destination, center_y_destination),
+        )
 
         self._window.draw_line(line, fill_color=line_color)
 
@@ -101,8 +109,8 @@ class Maze:
 
     Attributes
     -----
-    x : int : Represents how many pixels from the left the maze runner should start
-    y : int : Represents how many pixels from the top the maze runner should start
+    start_x : int : Represents how many pixels from the left the maze runner should start
+    start_y : int : Represents how many pixels from the top the maze runner should start
     num_cols : int : Total cell columns
     num_rows : int : Total cell rows
     cell_size_x : int : Cell width
@@ -132,21 +140,25 @@ class Maze:
         self._cell_size_y = cell_size_y
         self._cells = []
 
+    def __format__(self, format_spec):
+        match format_spec:
+            case "short":
+                return f"{self.num_cols}x{self.num_rows}"
+            case "long":
+                return f"Maze with {self.num_rows} rows and {self.num_cols} columns, cell size: {self.cell_width}x{self.cell_height}"
+            case _:
+                return self.__repr__()
+
+    def __repr__(self):
+        return f"Maze({self.start_x}, {self.start_y}, {self.num_rows}, {self.num_cols}, {self.cell_width}, {self.cell_height})"
+
     @property
-    def x(self) -> int:
+    def start_x(self) -> int:
         return self._x
 
-    @x.setter
-    def x(self, value: int) -> None:
-        self._x = value
-
     @property
-    def y(self) -> int:
+    def start_y(self) -> int:
         return self._y
-
-    @y.setter
-    def y(self, value: int) -> None:
-        self._y = value
 
     @property
     def num_cols(self) -> int:
@@ -207,8 +219,8 @@ class MazeDrawer:
         """Calculates the x/y positions and draws the cell"""
         cell = self._maze.get_cell(i, j)
 
-        cell_x1 = self._maze.x + i * self._maze.cell_size_x
-        cell_y1 = self._maze.y + j * self._maze.cell_size_y
+        cell_x1 = self._maze.start_x + i * self._maze.cell_size_x
+        cell_y1 = self._maze.start_y + j * self._maze.cell_size_y
         cell_x2 = cell_x1 + self._maze.cell_size_x
         cell_y2 = cell_y1 + self._maze.cell_size_y
 

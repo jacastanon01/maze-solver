@@ -8,6 +8,9 @@ class Point:
         self._x = x
         self._y = y
 
+    def __repr__(self):
+        return f"Point({self._x}, {self._y})"
+
     @property
     def x(self) -> int:
         return self._x
@@ -23,7 +26,8 @@ class Line:
 
     Attributes
     -----
-    point1, point2 : Point
+    point1 : Point
+    point2 : Point
 
     Methods
     -----
@@ -34,18 +38,22 @@ class Line:
         self.point1 = point1
         self.point2 = point2
 
+    def __repr__(self):
+        return f"Line(\n\t{repr(self.point1)},\n\t{repr(self.point2)}\n\t)"
+
     def draw(self, canvas: Canvas, fill_color: str = "black") -> None:
         """Takes x and y positions of both points and draws a line between them"""
+        if (self.point1.x > self.point2.x and self.point1.y != self.point2.y) or (
+            self.point1.y > self.point2.y and self.point1.x != self.point2.x
+        ):
+            raise ValueError(f"Line cannot be drawn with invalid points: {repr(self)}")
+
         x1 = self.point1.x
         y1 = self.point1.y
         x2 = self.point2.x
         y2 = self.point2.y
         canvas.create_line(x1, y1, x2, y2, fill=fill_color, width=2)
         canvas.pack(fill=BOTH, expand=1)
-
-    # @property
-    # def x1(self):
-    #     return self.point1.x
 
 
 class Window:
@@ -62,7 +70,7 @@ class Window:
     wait_for_close -> None
     start() -> None
     close -> None
-    redraw() ->
+    redraw() -> None
     is_valid_window -> bool
     """
 
