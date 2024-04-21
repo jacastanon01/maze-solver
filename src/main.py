@@ -1,7 +1,7 @@
 from random import randint, choice
 
-from maze import Maze, MazeDrawer
-from screen import Window
+from src.maze import Maze, MazeDrawer
+from src.screen import Window
 
 
 def main() -> None:

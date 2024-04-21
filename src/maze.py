@@ -1,6 +1,6 @@
 import time
 
-from screen import Window, Line, Point
+from src.screen import Window, Line, Point
 
 
 class Cell:
