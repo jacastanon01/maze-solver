@@ -123,7 +123,7 @@ class Maze:
     num_rows : int : Total cell rows
     cell_width : int : Cell width
     cell_height : int : Cell height
-    cells : list[list][Cell] : List of cells in the maze
+    cells : list[list[Cell]] : List of cells in the maze
 
     Methods
     -----
