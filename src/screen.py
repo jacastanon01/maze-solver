@@ -121,7 +121,6 @@ class Window:
 
     def close(self) -> None:
         """Method to terminate window"""
-        # self.__is_window_running = False
         if self.is_valid_window():
             self.__root.destroy()
 
