@@ -35,6 +35,18 @@ class Cell:
         self.x2 = None
         self.y2 = None
 
+    def __repr__(self):
+        num_walls = [
+            1 if i else 0
+            for i in [
+                self.has_left_wall,
+                self.has_top_wall,
+                self.has_right_wall,
+                self.has_bottom_wall,
+            ]
+        ]
+        return f"Cell has {num_walls.count(1)} walls"
+
     def draw(self, x1: int, y1: int, x2: int, y2: int) -> None:
         """
         Draws walls of cell depending on point positions and wall flags
