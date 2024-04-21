@@ -125,8 +125,8 @@ class Maze:
     start_y : int : Represents how many pixels from the top the maze runner should start
     num_cols : int : Total cell columns
     num_rows : int : Total cell rows
-    cell_size_x : int : Cell width
-    cell_size_y : int : Cell height
+    cell_width : int : Cell width
+    cell_height : int : Cell height
     cells : list[list][Cell] : List of cells in the maze
 
     Methods
@@ -141,15 +141,23 @@ class Maze:
         y: int,
         num_cols: int,
         num_rows: int,
-        cell_size_x: int,
-        cell_size_y: int,
+        cell_width: int,
+        cell_height: int,
     ):
+        if num_cols  <= 0:
+            raise ValueError("Maze must have a positive number of columns")
+        if num_rows <= 0:
+            raise ValueError("Maze must have a positive number of rows")
+        if cell_width <= 0:
+            raise ValueError("Cell width must be greater than zero")
+        if cell_height <= 0:
+            raise ValueError("Cell height must be greater than 0")
         self._x = x
         self._y = y
         self._num_cols = num_cols
         self._num_rows = num_rows
-        self._cell_size_x = cell_size_x
-        self._cell_size_y = cell_size_y
+        self._cell_width = cell_width
+        self._cell_height = cell_height
         self._cells = []
 
     def __format__(self, format_spec):
@@ -181,12 +189,12 @@ class Maze:
         return self._num_rows
 
     @property
-    def cell_size_x(self) -> int:
-        return self._cell_size_x
+    def cell_width(self) -> int:
+        return self._cell_width
 
     @property
-    def cell_size_y(self) -> int:
-        return self._cell_size_y
+    def cell_height(self) -> int:
+        return self._cell_height
 
     def init_cells(self, win: Window) -> None:
         """Initializes the matrix of a maze"""
@@ -223,6 +231,8 @@ class MazeDrawer:
 
     def _create_cells(self) -> None:
         """Creates matrix of cells to draw to screen"""
+        if self._maze.num_cols <= 0 or self._maze.num_rows <= 0:
+            raise ValueError("Maze must have a positive number of rows and columns")
         for i in range(self._maze.num_rows):
             for j in range(self._maze.num_cols):
                 self._draw_cells(i, j)
@@ -231,10 +241,10 @@ class MazeDrawer:
         """Calculates the x/y positions and draws the cell"""
         cell = self._maze.get_cell(i, j)
 
-        cell_x1 = self._maze.start_x + i * self._maze.cell_size_x
-        cell_y1 = self._maze.start_y + j * self._maze.cell_size_y
-        cell_x2 = cell_x1 + self._maze.cell_size_x
-        cell_y2 = cell_y1 + self._maze.cell_size_y
+        cell_x1 = self._maze.start_x + i * self._maze.cell_width
+        cell_y1 = self._maze.start_y + j * self._maze.cell_height
+        cell_x2 = cell_x1 + self._maze.cell_width
+        cell_y2 = cell_y1 + self._maze.cell_height
 
         cell.draw(cell_x1, cell_y1, cell_x2, cell_y2)
         self._animate()
