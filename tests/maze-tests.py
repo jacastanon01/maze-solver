@@ -28,6 +28,7 @@ def mock_gui_with_setup(func):
             m = Maze(0, 0, num_rows, num_cols, 10, 10)
             m_gui = MazeDrawer(m, win)
             kwargs.update({"win": win, "m": m, "m_drawer": m_gui})
+
             return func(*args, **kwargs)
 
     return wrapper
@@ -85,7 +86,6 @@ class MazeTest(TestCase):
             m.num_rows - 1,
             m.num_cols - 1,
         )
-
         self.assertEqual(top.has_top_wall, False)
         self.assertEqual(bottom.has_bottom_wall, False)
 
