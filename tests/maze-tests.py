@@ -1,21 +1,23 @@
 from unittest import TestCase, mock, main
 from functools import wraps
 
-# from contextlib import contextmanager
-
 from src.screen import Window
 from src.maze import Maze, Cell, MazeDrawer
 
 
-# @contextmanager
 def mock_gui(func):
+    """Decorator to mock certain drawing functionality without needing a new window"""
+
     @wraps(func)
     def wrapper(*args, **kwargs):
-        with mock.patch.multiple(
-            "src.screen.Window",
-            start=lambda *args, **kwargs: None,
-            draw_line=lambda *args, **kwargs: None,
-            redraw=lambda *args, **kwargs: None,
+        with mock.patch(
+            "src.screen.Window.start", lambda *args, **kwargs: None
+        ), mock.patch(
+            "src.screen.Window.draw_line", lambda *args, **kwargs: None
+        ), mock.patch(
+            "src.screen.Window.redraw", lambda *args, **kwargs: None
+        ), mock.patch(
+            "src.maze.MazeDrawer._create_cells"
         ):
             func(*args, **kwargs)
 
