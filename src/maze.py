@@ -213,6 +213,7 @@ class MazeDrawer:
     Attributes
     -----
     maze : Maze
+    window : Window
 
     Methods:
     ----
