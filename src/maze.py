@@ -1,4 +1,5 @@
 import time
+import random
 
 from src.screen import Window, Line, Point
 
@@ -17,6 +18,7 @@ class Cell:
         Represents bottom-left point of cell. To be used to draw walls
     x2, y2 : int
         Represents top-right point of cell. To be used to draw walls
+    visited : Keeps track of which cell has had their walls broken down
 
     Methods
     -----
@@ -34,6 +36,7 @@ class Cell:
         self.y1 = None
         self.x2 = None
         self.y2 = None
+        self.visited = False
 
     def __repr__(self):
         num_walls = [
@@ -124,6 +127,7 @@ class Maze:
     cell_width : int : Cell width
     cell_height : int : Cell height
     cells : list[list[Cell]] : List of cells in the maze
+    seed : int : Random seed
 
     Methods
     -----
@@ -139,6 +143,7 @@ class Maze:
         num_rows: int,
         cell_width: int,
         cell_height: int,
+        seed=None,
     ):
         if num_cols <= 0:
             raise ValueError("Maze must have a positive number of columns")
@@ -155,6 +160,7 @@ class Maze:
         self._cell_width = cell_width
         self._cell_height = cell_height
         self._cells = []
+        self._seed = random.seed(4)
 
     def __format__(self, format_spec):
         match format_spec:
