@@ -6,7 +6,10 @@ from src.maze import Maze, Cell, MazeDrawer
 
 
 def mock_gui(func):
-    """Decorator to mock certain drawing functionality without needing a new window"""
+    """
+    Decorator to mock certain drawing functionality without needing a new window
+    Increases testing efficiency and allows for easier testing of GUI functionality
+    """
 
     @wraps(func)
     def wrapper(*args, **kwargs):
