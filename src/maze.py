@@ -1,5 +1,6 @@
 import time
 import random
+from typing import Dict, Tuple
 
 from src.screen import Window, Line, Point
 
@@ -12,18 +13,19 @@ class Cell:
     -----
     window : Screen
         Represents Tkinter window to place cells
-    has_{side}_wall: bool
-        Flags to indicate which walls to draw on cell
     x1, y1 : int
         Represents bottom-left point of cell. To be used to draw walls
     x2, y2 : int
         Represents top-right point of cell. To be used to draw walls
-    visited : Keeps track of which cell has had their walls broken down
+    has_{side}_wall: bool
+        Flags to indicate which walls to draw on cell
+    visited : list : Keeps track of which cell has had their walls broken down
 
     Methods
     -----
     draw(x1 : int, y1 : int, x2 : int, y2 : int) -> None : Draws cell to screen
     draw_move(to_cell : Cell, undo ?: bool) -> None : Draws line thru cells
+    get_wall_directions -> dict[{str: tuple(int)}] : Retrieves the coordinates for a given wall direction
     """
 
     def __init__(self, window: Window):
@@ -37,6 +39,7 @@ class Cell:
         self.x2 = None
         self.y2 = None
         self.visited = False
+        self._fill_color = None
 
     def __repr__(self):
         num_walls = [
@@ -50,7 +53,7 @@ class Cell:
         ]
         return f"Cell has {num_walls.count(1)} walls"
 
-    def draw(self, x1: int, y1: int, x2: int, y2: int) -> None:
+    def draw_wall(self, x1: int, y1: int, x2: int, y2: int) -> None:
         """
         Draws walls of cell depending on point positions and wall flags
 
@@ -62,25 +65,21 @@ class Cell:
             Represents bottom-right point of cell. To be used to draw walls
         """
 
-        wall_directions = {
-            "top": (x1, y1, x2, y1),
-            "right": (x2, y2, x2, y1),
-            "bottom": (x2, y2, x1, y2),
-            "left": (x1, y1, x1, y2),
-        }
-
         self.x1 = x1
         self.y1 = y1
         self.x2 = x2
         self.y2 = y2
 
+        wall_directions = self.get_wall_directions()
+
         for direction in wall_directions:
-            fill_color = (
+            self._fill_color = (
                 "white" if not getattr(self, f"has_{direction}_wall") else "black"
             )
             point1 = wall_directions[direction][:2]
             point2 = wall_directions[direction][2:]
-            self._window.draw_line(Line(Point(*point1), Point(*point2)), fill_color)
+            wall_line = Line(Point(*point1), Point(*point2))
+            self._window.draw_line(wall_line, self._fill_color)
 
     def draw_move(self, to_cell: "Cell", undo=False) -> None:
         """
@@ -113,6 +112,19 @@ class Cell:
 
         self._window.draw_line(line, fill_color=line_color)
 
+    def get_wall_directions(self) -> Dict[str, Tuple[int, int, int, int]]:
+        """
+        Calculates the current connecting points for a wall based on the
+        current values of x1, y1, x2, y2 and maps each direction to its coordinates
+        """
+        wall_directions = {
+            "top": (self.x1, self.y1, self.x2, self.y1),
+            "right": (self.x2, self.y2, self.x2, self.y1),
+            "bottom": (self.x2, self.y2, self.x1, self.y2),
+            "left": (self.x1, self.y1, self.x1, self.y2),
+        }
+        return wall_directions
+
 
 class Maze:
     """
@@ -133,6 +145,8 @@ class Maze:
     -----
     init_cells -> None : Initializes the matrix of a maze
     get_cell(i: int, j: int) -> Cell : Returns the cell at the specified row and column
+    break_walls_r(i : int, j : int) -> None : Animates depth-first traversal algorithm to create maze
+
     """
 
     def __init__(
@@ -212,6 +226,16 @@ class Maze:
         else:
             return None
 
+    def _break_walls_r(row: int, col: int) -> None:
+        """
+        Creates a wall between two cells in the maze
+        If cells[row][col] does not have right wall, cells[row+1][col+1] should not have leftt wall
+        """
+        current_cell = self._cells[row][col]
+        current_cell.visited = True
+        while True:
+            to_visit = []
+
 
 class MazeDrawer:
     """
@@ -256,7 +280,7 @@ class MazeDrawer:
         cell_x2 = cell_x1 + self._maze.cell_width
         cell_y2 = cell_y1 + self._maze.cell_height
 
-        cell.draw(cell_x1, cell_y1, cell_x2, cell_y2)
+        cell.draw_wall(cell_x1, cell_y1, cell_x2, cell_y2)
         self._animate()
 
     def _animate(self) -> None:
