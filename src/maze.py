@@ -160,7 +160,8 @@ class Maze:
         self._cell_width = cell_width
         self._cell_height = cell_height
         self._cells = []
-        self._seed = random.seed(4)
+        if seed is not None:
+            self._seed = random.seed(4)
 
     def __format__(self, format_spec):
         match format_spec:
