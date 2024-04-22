@@ -228,8 +228,8 @@ class MazeDrawer:
         self._window = window
 
         self._maze.init_cells(self._window)
+        self._create_entrance_and_exit()
         self._create_cells()
-        # self._create_entrance_and_exit()
 
     def _create_cells(self) -> None:
         """Draws matrix of cells to draw to screen"""
@@ -248,7 +248,6 @@ class MazeDrawer:
         cell_x2 = cell_x1 + self._maze.cell_width
         cell_y2 = cell_y1 + self._maze.cell_height
 
-        self._create_entrance_and_exit()
         cell.draw(cell_x1, cell_y1, cell_x2, cell_y2)
         self._animate()
 
