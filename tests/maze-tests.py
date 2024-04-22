@@ -17,7 +17,7 @@ def mock_gui(func):
             draw_line=lambda *args, **kwargs: None,
             redraw=lambda *args, **kwargs: None,
         ):
-            yield
+            func(*args, **kwargs)
 
     return wrapper
 

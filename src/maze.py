@@ -20,8 +20,8 @@ class Cell:
 
     Methods
     -----
-    draw(x1 : int, y1 : int, x2 : int, y2 : int) -> None
-    draw_move(to_cell : Cell, undo ?: bool) -> None
+    draw(x1 : int, y1 : int, x2 : int, y2 : int) -> None : Draws cell to screen
+    draw_move(to_cell : Cell, undo ?: bool) -> None : Draws line thru cells
     """
 
     def __init__(self, window: Window):
@@ -216,9 +216,11 @@ class MazeDrawer:
 
     Methods:
     ----
-    draw_cells(i : int, j : int) -> None
-    animate -> None
-    draw_entrance_and_exit -> None
+    create_cells -> None : Initializes the matrix of cells and draws them to screen
+    draw_cell(i: int, j: int) -> None : Draws a cell to screen at specified row/column position
+    animate -> None : Animates maze by drawing cells one at a time and allows us to visulize our algorithm
+    draw_entrance_and_exit -> None : Draws entrance and exit to maze by removing the top wall of the first cell and
+    the bottom wall of the last cell
     """
 
     def __init__(self, maze: Maze, window: Window):
@@ -227,25 +229,26 @@ class MazeDrawer:
 
         self._maze.init_cells(self._window)
         self._create_cells()
-        self._draw_entrance_and_exit()
+        # self._create_entrance_and_exit()
 
     def _create_cells(self) -> None:
-        """Creates matrix of cells to draw to screen"""
+        """Draws matrix of cells to draw to screen"""
         if self._maze.num_cols <= 0 or self._maze.num_rows <= 0:
             raise ValueError("Maze must have a positive number of rows and columns")
         for i in range(self._maze.num_rows):
             for j in range(self._maze.num_cols):
                 self._draw_cell(i, j)
 
-    def _draw_cell(self, i: int, j: int) -> None:
+    def _draw_cell(self, x: int, y: int) -> None:
         """Calculates the x/y positions and draws the cell"""
-        cell = self._maze.get_cell(i, j)
+        cell = self._maze.get_cell(x, y)
 
-        cell_x1 = self._maze.x_start + i * self._maze.cell_width
-        cell_y1 = self._maze.y_start + j * self._maze.cell_height
+        cell_x1 = self._maze.x_start + x * self._maze.cell_width
+        cell_y1 = self._maze.y_start + y * self._maze.cell_height
         cell_x2 = cell_x1 + self._maze.cell_width
         cell_y2 = cell_y1 + self._maze.cell_height
 
+        self._create_entrance_and_exit()
         cell.draw(cell_x1, cell_y1, cell_x2, cell_y2)
         self._animate()
 
@@ -254,7 +257,7 @@ class MazeDrawer:
         self._window.redraw()
         time.sleep(0.05)
 
-    def _draw_entrance_and_exit(self) -> None:
+    def _create_entrance_and_exit(self) -> None:
         """Creates entrance and exit to maze by removing the top wall of the first cell and
         the bottom wall of the last cell"""
         top_cell = self._maze.get_cell(0, 0)
@@ -263,5 +266,3 @@ class MazeDrawer:
         )
         top_cell.has_top_wall = False
         bottom_cell.has_bottom_wall = False
-        self._draw_cell(0, 0)
-        self._draw_cell(self._maze.num_rows - 1, self._maze.num_cols - 1)
