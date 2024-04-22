@@ -5,10 +5,10 @@ from src.screen import Window
 from src.maze import Maze, Cell, MazeDrawer
 
 
-def mock_gui(func):
+def mock_gui_with_setup(func):
     """
-    Decorator to mock certain drawing functionality without needing a new window
-    Increases testing efficiency and allows for easier testing of GUI functionality
+    Decorator to mock certain drawing functionality without opening a new window
+    Instantiates Window, Maze and MazeDrawer mock objects for testing
     """
 
     @wraps(func)
@@ -22,7 +22,13 @@ def mock_gui(func):
         ), mock.patch(
             "src.maze.MazeDrawer._create_cells"
         ):
-            func(*args, **kwargs)
+            win = Window(800, 800)
+            num_cols = 12
+            num_rows = 10
+            m = Maze(0, 0, num_rows, num_cols, 10, 10)
+            m_gui = MazeDrawer(m, win)
+            kwargs.update({"win": win, "m": m, "m_drawer": m_gui})
+            return func(*args, **kwargs)
 
     return wrapper
 
@@ -70,15 +76,15 @@ class MazeTest(TestCase):
             f"Maze with {num_rows} rows and {num_cols} columns, cell size: {cell_width}x{cell_height}",
         )
 
-    @mock_gui
-    def test_maze_draw_entrance_and_exit(self):
-        win = Window(800, 800)
-        num_cols = 12
-        num_rows = 10
-        m = Maze(0, 0, num_rows, num_cols, 10, 10)
-        m_gui = MazeDrawer(m, win)
+    @mock_gui_with_setup
+    def test_maze_draw_entrance_and_exit(
+        self, win: Window, m: Maze, m_drawer: MazeDrawer
+    ):
         top = m.get_cell(0, 0)
-        bottom = m.get_cell(num_cols - 1, num_rows - 1)
+        bottom = m.get_cell(
+            m.num_rows - 1,
+            m.num_cols - 1,
+        )
 
         self.assertEqual(top.has_top_wall, False)
         self.assertEqual(bottom.has_bottom_wall, False)
