@@ -96,7 +96,6 @@ class Window:
         x1, y1 = point1.x, point1.y
         x2, y2 = point2.x, point2.y
         self._canvas.create_line(x1, y1, x2, y2, fill=fill_color, width=2)
-        # line.draw(self._canvas, fill_color)
 
     def wait_for_close(self) -> None:
         """Method that checks if window is still open before drawing to it"""

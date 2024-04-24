@@ -117,6 +117,13 @@ class Cell:
             point2 = wall_directions[direction][2:]
             wall_line = Line(Point(*point1), Point(*point2))
             self._window.draw_line(wall_line, fill_color)
+            # self._window.redraw()
+            # time.sleep(0.1)
+
+    # def _animate(self) -> None:
+    #     """Animates maze by drawing cells one at a time and allows us to visulize our algorithm"""
+    #     self._window.redraw()
+    #     time.sleep(0.1)
 
     def draw_move(self, to_cell: "Cell", undo=False) -> None:
         """
@@ -157,8 +164,8 @@ class Maze:
     -----
     x_start : int : Represents how many pixels from the left the maze runner should start
     x_start : int : Represents how many pixels from the top the maze runner should start
-    num_rows : int : Total cell rows
     num_cols : int : Total cell columns
+    num_rows : int : Total cell rows
     cell_width : int : Cell width
     cell_height : int : Cell height
     cells : list[list[Cell]] : List of cells in the maze
@@ -176,8 +183,8 @@ class Maze:
         self,
         x_start: int,
         y_start: int,
-        num_rows: int,
         num_cols: int,
+        num_rows: int,
         cell_width: int,
         cell_height: int,
         seed=None,
@@ -321,7 +328,7 @@ class MazeDrawer:
         top_cell.has_top_wall = False
         bottom_cell.has_bottom_wall = False
         top_cell.visited = True
-        bottom_cell.visited = True
+        
         self._draw_cell(0, 0)
         self._draw_cell(self._maze.num_cols - 1, self._maze.num_rows - 1)
 
@@ -337,9 +344,9 @@ class MazeDrawer:
             # Get the neighbor cell based on the direction
             neighbor_coords, opposite_direction = self._get_neighbor_coords(col, row, direction)
             neighbor_col, neighbor_row = neighbor_coords
-
+           
             # Boundary check
-            if 0 <= neighbor_row <= self._maze.num_rows and 0 <= neighbor_col <= self._maze.num_cols:
+            if 0 <= neighbor_row < self._maze.num_rows and 0 <= neighbor_col < self._maze.num_cols:
                 neighbor = self._maze.get_cell(neighbor_col, neighbor_row)
 
                 # If the neighbor hasn't been visited, break the walls and recurse
