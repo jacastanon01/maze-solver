@@ -28,32 +28,18 @@ class Line:
     -----
     point1 : Point
     point2 : Point
-
-    Methods
-    -----
-    draw(canvas : Tk.Canvas, fill_color ?: str) -> None
     """
 
     def __init__(self, point1: Point, point2: Point):
-        self.point1 = point1
-        self.point2 = point2
+        self.__point1 = point1
+        self.__point2 = point2
 
     def __repr__(self):
-        return f"Line(\n\t{repr(self.point1)},\n\t{repr(self.point2)}\n\t)"
+        return f"Line(\n\t{repr(self.__point1)},\n\t{repr(self.__point2)}\n\t)"
 
-    def draw(self, canvas: Canvas, fill_color: str = "black") -> None:
-        """Takes x and y positions of both points and draws a line between them"""
-        if (self.point1.x > self.point2.x and self.point1.y != self.point2.y) or (
-            self.point1.y > self.point2.y and self.point1.x != self.point2.x
-        ):
-            raise ValueError(f"Line cannot be drawn with invalid points: {repr(self)}")
-
-        x1 = self.point1.x
-        y1 = self.point1.y
-        x2 = self.point2.x
-        y2 = self.point2.y
-        canvas.create_line(x1, y1, x2, y2, fill=fill_color, width=2)
-        canvas.pack(fill=BOTH, expand=1)
+    def get_points(self) -> tuple[Point, Point]:
+        """Returns the two connecting points of a line"""
+        return self.__point1, self.__point2
 
 
 class Window:
@@ -67,11 +53,12 @@ class Window:
 
     Methods
     -----
-    wait_for_close -> None
-    start() -> None
-    close -> None
-    redraw() -> None
-    is_valid_window -> bool
+    wait_for_close -> None : calls self.redraw() if window still is valid
+    draw_line(line : Line, fille_color ?: str) -> None : Draws line to canvas
+    start() -> None : starts mainloop for window to stay open
+    close -> None : terminates window
+    redraw() -> None : Updates window
+    is_valid_window -> bool : checks if window still exists
     """
 
     def __init__(self, width: int, height: int):
@@ -105,7 +92,10 @@ class Window:
         """
         Responsible for drawing a line on the canvas
         """
-        line.draw(self._canvas, fill_color)
+        point1, point2 = line.get_points()
+        x1, y1 = point1.x, point1.y
+        x2, y2 = point2.x, point2.y
+        self._canvas.create_line(x1, y1, x2, y2, fill=fill_color, width=2)
 
     def wait_for_close(self) -> None:
         """Method that checks if window is still open before drawing to it"""
