@@ -249,6 +249,12 @@ class Maze:
         else:
             return None
 
+    def reset_visited_cells(self):
+        """Sets all cells in matrix to unvisited"""
+        for col in range(self._num_cols):
+            for row in range(self._num_rows):
+                self._cells[col][row].visited = False
+
 
 class MazeDrawer:
     """
@@ -275,6 +281,7 @@ class MazeDrawer:
         self._create_cells()
         self._create_entrance_and_exit()
         self._break_walls_r(0, 0)
+        self._maze.reset_visited_cells()
 
 
     def _create_cells(self) -> None:
@@ -333,7 +340,7 @@ class MazeDrawer:
 
             # Boundary check
             if 0 <= neighbor_row <= self._maze.num_rows and 0 <= neighbor_col <= self._maze.num_cols:
-                neighbor = self._maze.get_cell(neighbor_col, neighbor_row, )
+                neighbor = self._maze.get_cell(neighbor_col, neighbor_row)
 
                 # If the neighbor hasn't been visited, break the walls and recurse
                 if neighbor and not neighbor.visited:

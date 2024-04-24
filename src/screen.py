@@ -54,6 +54,7 @@ class Window:
     Methods
     -----
     wait_for_close -> None
+    draw_line(line : Line, fille_color ?: str) -> None : Draws line to canvas
     start() -> None
     close -> None
     redraw() -> None
