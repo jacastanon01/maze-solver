@@ -319,24 +319,28 @@ class MazeDrawer:
         self._draw_cell(0, 0)
         self._draw_cell(self._maze.num_rows - 1, self._maze.num_cols - 1)
 
-    def _break_walls_r(self, row: int, col: int) -> None:
+    def _break_walls_r(self, *args) -> None:
         """
         Breaks a wall between two cells in the maze
         If cells[row][col] does not have right wall, cells[row][col+1] should not have left wall and so on...
         """
+        row, col, opposite_direction = args
         adjacent_cells = {
             "top": ((row - 1, col), "bottom"),
             "right": ((row, col + 1), "left"),
             "bottom": ((row + 1, col), "top"),
             "left": ((row, col - 1), "right"),
         }
+        to_visit = []
         current_cell: Cell = self._maze.get_cell(row, col)
         current_cell.visited = True
         random_directions = list(adjacent_cells.keys())
-        # random.shuffle(random_directions)
+        random.shuffle(random_directions)
+        direction = random_directions[0]
+        # random_i = random.randint(4)
+        to_visit.append(adjacent_cells[direction])
 
-        to_visit = []
-        for direction in random_directions:
+        while to_visit:
             coords, opposite_direction = adjacent_cells[direction]
             neighbor_row, neighbor_col = coords
 
@@ -345,7 +349,10 @@ class MazeDrawer:
                 0 <= neighbor_col < self._maze.num_cols
             ):
                 neighbor = self._maze.get_cell(*coords)
-                if neighbor and not neighbor.visited:            
+                if neighbor and not neighbor.visited: 
+                    to_visit.append((coords, opposite_direction))
+                    neighbor.visited = True
+           
                     has_wall_str = f"has_{direction}_wall"
                     has_opposite_wall_str = f"has_{opposite_direction}_wall"
                     has_wall = getattr(current_cell, has_wall_str)
