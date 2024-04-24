@@ -123,21 +123,7 @@ class Cell:
             Point(center_x_source, center_y_source),
             Point(center_x_destination, center_y_destination),
         )
-
         self._window.draw_line(line, fill_color=line_color)
-
-    def get_wall_directions(self) -> Dict[str, Tuple[int, int, int, int]]:
-        """
-        Calculates the current connecting points for a wall based on the
-        current values of x1, y1, x2, y2 and maps each direction to its coordinates
-        """
-        wall_directions = {
-            "top": (self.x1, self.y1, self.x2, self.y1),
-            "right": (self.x2, self.y2, self.x2, self.y1),
-            "bottom": (self.x2, self.y2, self.x1, self.y2),
-            "left": (self.x1, self.y1, self.x1, self.y2),
-        }
-        return wall_directions
 
 
 class Maze:
@@ -148,8 +134,8 @@ class Maze:
     -----
     x_start : int : Represents how many pixels from the left the maze runner should start
     x_start : int : Represents how many pixels from the top the maze runner should start
-    num_cols : int : Total cell columns
     num_rows : int : Total cell rows
+    num_cols : int : Total cell columns
     cell_width : int : Cell width
     cell_height : int : Cell height
     cells : list[list[Cell]] : List of cells in the maze
@@ -167,8 +153,8 @@ class Maze:
         self,
         x_start: int,
         y_start: int,
-        num_cols: int,
         num_rows: int,
+        num_cols: int,
         cell_width: int,
         cell_height: int,
         seed=None,
@@ -183,8 +169,8 @@ class Maze:
             raise ValueError("Cell height must be greater than zero")
         self._x_start = x_start
         self._y_start = y_start
-        self._num_cols = num_cols
         self._num_rows = num_rows
+        self._num_cols = num_cols
         self._cell_width = cell_width
         self._cell_height = cell_height
         self._cells = []
@@ -239,70 +225,6 @@ class Maze:
             return self._cells[row][col]
         else:
             return None
-
-    # def _break_walls_r(self, row: int, col: int) -> None:
-    #     """
-    #     Breaks a wall between two cells in the maze
-    #     If cells[row][col] does not have right wall, cells[row][col+1] should not have left wall and so on...
-    #     """
-    #     adjacent_cells = {
-    #         "top": ((row - 1, col), "bottom"),
-    #         "right": ((row, col + 1), "left"),
-    #         "bottom": ((row + 1, col), "top"),
-    #         "left": ((row, col - 1), "right"),
-    #     }
-    #     current_cell: Cell = self.get_cell(row, col)
-    #     current_cell.visited = True
-    #     # print(f"Current cell: {repr(current_cell)}")
-
-    #     while True:
-    #         to_visit = []
-    #         for direction, value in adjacent_cells.items():
-    #             coords, opposite_wall = value
-    #             print(f"COORDES: {coords}\ncurrent coords: {row}, {col}\n++++++++++++")
-    #             neighbor_row, neighbor_col = coords
-
-    #             # Boundary check
-    #             if not (0 <= neighbor_row <= self.num_rows - 1) or not (
-    #                 0 <= neighbor_col <= self.num_cols - 1
-    #             ):
-    #                 print(f"%%%%%%%%\nBREAK: \nRow:{neighbor_row}\nCol: {neighbor_col}")
-    #                 continue
-
-    #             neighbor = self.get_cell(*coords)
-    #             if neighbor is not None and not neighbor.visited:
-    #                 print(f"Neighbor in for loop: {repr(neighbor.visited)}\n-------\n")
-    #                 to_visit.append(direction)
-    #             else:
-    #                 continue
-    #         print(f"TO VISIT: {to_visit}\n++++++++\n")
-    #         if not to_visit:
-    #             return
-
-    #         # random_index = random.randrange(len(to_visit))
-    #         # random_direction = random.choice(to_visit)
-    #         # print(random_direction)
-    #         random_idx = random.randrange(len(to_visit))
-    #         to_visit_wall = to_visit[random_idx]
-    #         coords, opposite_wall = adjacent_cells[to_visit_wall]
-    #         print(
-    #             f"######\nrandom wall: {to_visit_wall}\nNEW COORDS: {coords}\nOPPOSITE_WALL: {opposite_wall}\n#######"
-    #         )
-    #         # print(opposite_value, coords, opposite_wall, sep="\n:")
-    #         # print(repr(neighbor), repr(current_cell), sep="\n-----"
-    #         neighbor = self.get_cell(*coords)
-    #         print(
-    #             f"\n,,,,,,,,,,,,,,,\nneighbor before setting walls: {repr(neighbor)}\nCurrent cell: {repr(current_cell)}\n,,,,,,,,,,"
-    #         )
-    #         setattr(current_cell, f"has_{to_visit_wall}_wall", False)
-    #         setattr(neighbor, f"has_{opposite_wall}_wall", False)
-    #         # print(repr(neighbor), repr(current_cell), sep="\n-----")
-
-    #         print(
-    #             f"Neighbor outside for loop: {repr(neighbor)}\nCurrent cell: {repr(current_cell)}\n----------\n----------\nRECURSION\n------\n----------\n"
-    #         )
-    #         if not neighbor.visited:
-    #             self._break_walls_r(*coords)
 
 
 class MazeDrawer:
@@ -382,53 +304,21 @@ class MazeDrawer:
         }
         current_cell: Cell = self._maze.get_cell(row, col)
         current_cell.visited = True
-        # print(f"Current cell: {repr(current_cell)}")
+        random_directions = list(adjacent_cells.keys())
+        random.shuffle(random_directions)
 
-        while True:
-            to_visit = []
-            for direction, (coords, opposite_wall) in adjacent_cells.items():
-                print(f"COORDES: {coords}\ncurrent coords: {row}, {col}\n++++++++++++")
-                neighbor_row, neighbor_col = coords
+        for direction in random_directions:
+            coords, opposite_direction = adjacent_cells[direction]
+            neighbor_row, neighbor_col = coords
 
-                # Boundary check
-                if not (0 <= neighbor_row <= self._maze.num_rows - 1) or not (
-                    0 <= neighbor_col <= self._maze.num_cols - 1
-                ):
-                    print(f"%%%%%%%%\nBREAK: \nRow:{neighbor_row}\nCol: {neighbor_col}")
-                    continue
-
+            # Boundary check
+            if (0 <= neighbor_row < self._maze.num_rows) or (
+                0 <= neighbor_col < self._maze.num_cols
+            ):
                 neighbor = self._maze.get_cell(*coords)
-                if neighbor is not None and not neighbor.visited:
-                    print(f"Neighbor in for loop: {repr(neighbor.visited)}\n-------\n")
-                    to_visit.append(direction)
-                else:
-                    continue
-            print(f"TO VISIT: {to_visit}\n++++++++\n")
-            if not to_visit:
-                self._draw_cell(row, col)
-                return
-
-            # random_index = random.randrange(len(to_visit))
-            # random_direction = random.choice(to_visit)
-            # print(random_direction)
-            random_idx = random.randrange(len(to_visit))
-            to_visit_wall = to_visit[random_idx]
-            coords, opposite_wall = adjacent_cells[to_visit_wall]
-            print(
-                f"######\nrandom wall: {to_visit_wall}\nNEW COORDS: {coords}\nOPPOSITE_WALL: {opposite_wall}\n#######"
-            )
-            # print(opposite_value, coords, opposite_wall, sep="\n:")
-            # print(repr(neighbor), repr(current_cell), sep="\n-----"
-            neighbor = self._maze.get_cell(*coords)
-            print(
-                f"\n,,,,,,,,,,,,,,,\nneighbor before setting walls: {repr(neighbor)}\nCurrent cell: {repr(current_cell)}\n,,,,,,,,,,"
-            )
-            setattr(current_cell, f"has_{to_visit_wall}_wall", False)
-            setattr(neighbor, f"has_{opposite_wall}_wall", False)
-            # print(repr(neighbor), repr(current_cell), sep="\n-----")
-
-            print(
-                f"Neighbor outside for loop: {repr(neighbor)}\nCurrent cell: {repr(current_cell)}\n----------\n----------\nRECURSION\n------\n----------\n"
-            )
-            if not neighbor.visited:
-                self._break_walls_r(*coords)
+                if neighbor and not neighbor.visited:
+                    print(f"Neighbor in for loop: {repr(neighbor)}\n-------\n")
+                    setattr(current_cell, f"has_{direction}_wall", False)
+                    setattr(neighbor, f"has_{opposite_direction}_wall", False)
+                    self._break_walls_r(*coords)
+                    self._draw_cell(row, col)
