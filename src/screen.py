@@ -105,6 +105,10 @@ class Window:
         """
         Responsible for drawing a line on the canvas
         """
+        point1, point2 = line.point1, line.point2
+        x1, y1 = point1.x, point1.y
+        x2, y2 = point2.x, point2.y
+        # self._canvas.create_line(x1, y1, x2, y2, fill=fill_color, width=2)
         line.draw(self._canvas, fill_color)
 
     def wait_for_close(self) -> None:

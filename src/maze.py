@@ -28,6 +28,7 @@ class Cell:
     get_wall_directions -> dict[{str: tuple(int)}] : Retrieves the coordinates for a given wall direction
     """
 
+    # Dunder methods
     def __init__(self, window: Window):
         self._window = window
         self.has_left_wall = True
@@ -42,28 +43,49 @@ class Cell:
         self._fill_color = None
 
     def __repr__(self):
-        num_walls = [
-            1 if i else 0
-            for i in [
-                self.has_left_wall,
-                self.has_top_wall,
-                self.has_right_wall,
-                self.has_bottom_wall,
+        return "\n------\n".join((
+            f"Cell(x1: {self.x1}, y1: {self.y1}, x2: {self.x2}, y2: {self.y2})",
+            f"\nwalls: {"top" if self.has_top_wall else "no top"} {"left" if self.has_left_wall else "no left"}, {"right" if self.has_right_wall else "no right"}, {"bottom" if self.has_bottom_wall else "no bottom"}",
+        ))
+
+    def __format__(self, format_spec: str):
+        """
+        Parameters
+        ------
+        format_spec : str : takes the following key mappings
+            "w": number of walls belonging to this cell
+            "v": indicates if instance has been visited during path generation
+            "c": returns cell's coordinates
+        """
+        format_spec = set(format_spec)
+        if "w" in format_spec:        
+            num_walls = [
+                1 if i else 0
+                for i in [
+                    self.has_left_wall,
+                    self.has_top_wall,
+                    self.has_right_wall,
+                    self.has_bottom_wall,
+                ]
             ]
-        ]
-        format_str = f"Cell has {num_walls.count(1)} walls: "
-        for wall in ["top", "right", "bottom", "left"]:
-            if getattr(self, f"has_{wall}_wall"):
-                format_str += f"{wall} "
-        if self.x1 and self.y1 and self.x2 and self.y2:
-            center_x_source = (self.x1 + self.x2) // 2
-            center_y_source = (self.y1 + self.y2) // 2
-            format_str += f" with the following coordinates:\nX: {center_x_source}\nY: {center_y_source}"
-        return format_str
+            format_str = f"Cell has {num_walls.count(1)} walls: "
+            for wall in ["top", "right", "bottom", "left"]:
+                if getattr(self, f"has_{wall}_wall"):
+                    format_str += f"{wall} "
+            return format_str
+        if "v" in format_spec:
+            return f"Cell is {self.visited and 'visited' or 'not visited'}"
+        if "c" in format_spec:
+            if self.x1 and self.y1 and self.x2 and self.y2:
+                center_x_source = (self.x1 + self.x2) // 2
+                center_y_source = (self.y1 + self.y2) // 2
+                return f" with the following coordinates:\nX: {center_x_source}\nY: {center_y_source}"
+        return self.__repr__()
 
     def draw_wall(self, x1: int, y1: int, x2: int, y2: int) -> None:
         """
-        Draws walls of cell depending on point positions and wall flags
+        Creates a line from coordinates to draw on screen
+        
 
         Parameters
         -----
@@ -87,13 +109,16 @@ class Cell:
         }
 
         for direction in wall_directions:
-            self._fill_color = (
+            fill_color = (
                 "white" if not getattr(self, f"has_{direction}_wall") else "black"
             )
+            if fill_color == "white":
+                if not self.visited:
+                    return
             point1 = wall_directions[direction][:2]
             point2 = wall_directions[direction][2:]
             wall_line = Line(Point(*point1), Point(*point2))
-            self._window.draw_line(wall_line, self._fill_color)
+            self._window.draw_line(wall_line, fill_color)
 
     def draw_move(self, to_cell: "Cell", undo=False) -> None:
         """
@@ -123,7 +148,7 @@ class Cell:
             Point(center_x_source, center_y_source),
             Point(center_x_destination, center_y_destination),
         )
-        self._window.draw_line(line, fill_color=line_color)
+        self.draw_line(line, fill_color=line_color)
 
 
 class Maze:
@@ -254,6 +279,7 @@ class MazeDrawer:
         self._create_entrance_and_exit()
         self._break_walls_r(0, 0)
 
+
     def _create_cells(self) -> None:
         """Draws matrix of cells to draw to screen"""
         if self._maze.num_cols <= 0 or self._maze.num_rows <= 0:
@@ -277,7 +303,7 @@ class MazeDrawer:
     def _animate(self) -> None:
         """Animates maze by drawing cells one at a time and allows us to visulize our algorithm"""
         self._window.redraw()
-        time.sleep(0.05)
+        time.sleep(0.1)
 
     def _create_entrance_and_exit(self) -> None:
         """Creates entrance and exit to maze by removing the top wall of the first cell and
@@ -288,6 +314,8 @@ class MazeDrawer:
         )
         top_cell.has_top_wall = False
         bottom_cell.has_bottom_wall = False
+        top_cell.visited = True
+        bottom_cell.visited = True
         self._draw_cell(0, 0)
         self._draw_cell(self._maze.num_rows - 1, self._maze.num_cols - 1)
 
@@ -305,20 +333,39 @@ class MazeDrawer:
         current_cell: Cell = self._maze.get_cell(row, col)
         current_cell.visited = True
         random_directions = list(adjacent_cells.keys())
-        random.shuffle(random_directions)
+        # random.shuffle(random_directions)
 
+        to_visit = []
         for direction in random_directions:
             coords, opposite_direction = adjacent_cells[direction]
             neighbor_row, neighbor_col = coords
 
             # Boundary check
-            if (0 <= neighbor_row < self._maze.num_rows) or (
+            if (0 <= neighbor_row < self._maze.num_rows) and (
                 0 <= neighbor_col < self._maze.num_cols
             ):
                 neighbor = self._maze.get_cell(*coords)
-                if neighbor and not neighbor.visited:
-                    print(f"Neighbor in for loop: {repr(neighbor)}\n-------\n")
-                    setattr(current_cell, f"has_{direction}_wall", False)
-                    setattr(neighbor, f"has_{opposite_direction}_wall", False)
+                if neighbor and not neighbor.visited:            
+                    has_wall_str = f"has_{direction}_wall"
+                    has_opposite_wall_str = f"has_{opposite_direction}_wall"
+                    has_wall = getattr(current_cell, has_wall_str)
+                    has_opposite_wall = getattr(neighbor, has_opposite_wall_str)
+
+                    print(f"direction: {direction}, {has_wall}, \nopposite direction: {opposite_direction}, {has_opposite_wall}", end="\n---------\n")
+                    print(format(neighbor, "wvc"), format(current_cell, "wvc"), sep="\nCURRENT CELL: ", end="\n---------\n")
+
+                    if neighbor_row == self._maze.num_rows - 1 and neighbor_col == self._maze.num_cols - 1:
+                        # self._draw_cell(row, col)
+                        return
+                    # print(f"Neighbor in for loop: {format(neighbor, "wvc")}")
+                    print(f"\n*********\nAfter recursive call: {format(neighbor, 'c')}\n******")
+
                     self._break_walls_r(*coords)
+                    setattr(current_cell, has_wall_str, False)
+                    setattr(neighbor, has_opposite_wall_str, False)
                     self._draw_cell(row, col)
+
+                print("After:")
+                print(format(neighbor, "wvc"), format(current_cell, "wvc"), sep="\nCURRENT CELL: ", end="\n+++++++++++++\n")
+                # self._draw_cell(row, col)
+
