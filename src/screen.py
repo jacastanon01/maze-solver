@@ -53,12 +53,12 @@ class Window:
 
     Methods
     -----
-    wait_for_close -> None
+    wait_for_close -> None : calls self.redraw() if window still is valid
     draw_line(line : Line, fille_color ?: str) -> None : Draws line to canvas
-    start() -> None
-    close -> None
-    redraw() -> None
-    is_valid_window -> bool
+    start() -> None : starts mainloop for window to stay open
+    close -> None : terminates window
+    redraw() -> None : Updates window
+    is_valid_window -> bool : checks if window still exists
     """
 
     def __init__(self, width: int, height: int):
