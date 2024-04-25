@@ -1,6 +1,6 @@
 import time
 import random
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List
 
 from src.screen import Window, Line, Point
 
@@ -11,8 +11,8 @@ class Cell:
 
     Attributes
     -----
-    - window : Screen
-        Represents Tkinter window to place cells
+    - window : CanvasFrame
+        Interface for drawing onto canvas
     - x1, y1 : int
         Represents bottom-left point of cell. To be used to draw walls
     - x2, y2 : int
@@ -243,11 +243,15 @@ class Maze:
             return None
         return self._cells[self.num_cols - 1][self.num_rows - 1]
 
-    def init_cells(self, win: Window) -> None:
-        """Initializes the matrix of a maze"""
-        self._cells = [
-            [Cell(win) for _ in range(self._num_rows)] for _ in range(self._num_cols)
-        ]
+    @property.setter
+    def set_cells(self, new_cells: List[List[Cell]]) -> None:
+        self._cells = new_cells
+
+    # def init_cells(self, win: Window) -> None:
+    #     """Initializes the matrix of a maze"""
+    #     self._cells = [
+    #         [Cell(win) for _ in range(self._num_rows)] for _ in range(self._num_cols)
+    #     ]
 
     def get_cell(self, col: int, row: int) -> Cell | None:
         """
@@ -311,14 +315,21 @@ class MazeDrawer:
         self._maze = maze
         self._window = window
 
-        self._maze.init_cells(self._window)
         self._create_cells()
         self._create_entrance_and_exit()
         self._break_walls_r(0, 0)
         self._maze.reset_visited_cells()
 
+    def _init_cells(self) -> None:
+        """Initializes the matrix of a maze"""
+        new_cells = [
+            [Cell(self._window) for _ in range(self._num_rows)] for _ in range(self._num_cols)
+        ]
+        self._maze.set_cells(new_cells)
+
     def _create_cells(self) -> None:
         """Draws matrix of cells to draw to screen"""
+        self._init_cells()
         if self._maze.num_cols <= 0 or self._maze.num_rows <= 0:
             raise ValueError("Maze must have a positive number of rows and columns")
         for i in range(self._maze.num_cols):
