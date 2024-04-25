@@ -53,11 +53,11 @@ class Window:
 
     Methods
     -----
-    wait_for_close -> None : calls self.redraw() if window still is valid
-    draw_line(line : Line, fille_color ?: str) -> None : Draws line to canvas
-    start() -> None : starts mainloop for window to stay open
-    close -> None : terminates window
-    redraw() -> None : Updates window
+    wait_for_close : calls self.redraw() if window still is valid
+    draw_line(line : Line, fille_color ?: str) : Draws line to canvas
+    start() : starts mainloop for window to stay open
+    close : terminates window
+    redraw() : Updates window
     is_valid_window -> bool : checks if window still exists
     """
 

@@ -11,21 +11,21 @@ class Cell:
 
     Attributes
     -----
-    window : Screen
+    - window : Screen
         Represents Tkinter window to place cells
-    x1, y1 : int
+    - x1, y1 : int
         Represents bottom-left point of cell. To be used to draw walls
-    x2, y2 : int
+    - x2, y2 : int
         Represents top-right point of cell. To be used to draw walls
-    has_{side}_wall: bool
+    - has_{side}_wall: bool
         Flags to indicate which walls to draw on cell
-    visited : list : Keeps track of which cell has already been added to path in DFS
+    - visited : list : Keeps track of which cell has already been added to path in DFS
 
     Methods
     -----
-    draw(x1 : int, y1 : int, x2 : int, y2 : int) -> None : Draws cell to screen
-    draw_move(to_cell : Cell, undo ?: bool) -> None : Draws line thru cells
-    get_wall_directions -> dict[{str: tuple(int)}] : Retrieves the coordinates for a given wall direction
+    - draw(x1 : int, y1 : int, x2 : int, y2 : int)  : Draws cell to screen
+    - draw_move(to_cell : Cell, undo ?: bool)  : Draws line thru cells
+    - get_wall_directions -> dict[{str: tuple(int)}] : Retrieves the coordinates for a given wall direction
     """
 
     # Dunder methods
@@ -88,10 +88,8 @@ class Cell:
 
         Parameters
         -----
-        x1, y1 : int
-            Represents top-left point of cell. To be used to draw walls
-        x2, y2 : int
-            Represents bottom-right point of cell. To be used to draw walls
+            x1, y1 : int : Represents top-left point of cell. To be used to draw walls
+            x2, y2 : int : Represents bottom-right point of cell. To be used to draw walls
         """
 
         self.x1 = x1
@@ -123,10 +121,8 @@ class Cell:
 
         Parameters
         -----
-        to_cell : Cell
-            Specifies next cell to draw line toward
-        undo ?: bool
-            Indicates whether line is backtracking
+        to_cell : Cell : Specifies next cell to draw line toward
+        undo ?: bool : Indicates whether line is backtracking
         """
         if not isinstance(to_cell, Cell):
             raise ValueError("Invalid cell instance")
@@ -154,19 +150,21 @@ class Maze:
 
     Attributes
     -----
-    x_start : int : Represents how many pixels from the left the maze runner should start
-    x_start : int : Represents how many pixels from the top the maze runner should start
-    num_cols : int : Total cell columns
-    num_rows : int : Total cell rows
-    cell_width : int : Cell width
-    cell_height : int : Cell height
-    cells : list[list[Cell]] : List of cells in the maze
-    seed : int : Random seed
+    - x_start : int : Represents how many pixels from the left the maze runner should start
+    - y_start : int : Represents how many pixels from the top the maze runner should start
+    - num_cols : int : Total cell columns
+    - num_rows : int : Total cell rows
+    - cell_width : int : Cell width
+    - cell_height : int : Cell height
+    - cells : list[list[Cell]] : List of cells in the maze
+    - seed : int : Random seed
 
     Methods
     -----
-    init_cells -> None : Initializes the matrix with Cell objects
-    get_cell(col: int, row: int) -> Cell : Returns the cell at the specified column and row
+    - init_cells  : Initializes the matrix with Cell objects
+    - get_neighbor_coords(col: int, row: int, direction: str) -> Tuple[Tuple[int, int], str]
+        Returns the coordinates of the neighbor cell and the direction of the wall that connects them  
+    - get_cell(col: int, row: int) -> Cell : Returns the cell at the specified column and row
     """
 
     def __init__(
@@ -233,6 +231,18 @@ class Maze:
     def cell_height(self) -> int:
         return self._cell_height
 
+    @property
+    def start_cell(self) -> Cell | None:
+        if not self._cells:
+            return None
+        return self._cells[0][0]
+
+    @property
+    def end_cell(self) -> Cell | None:
+        if not self._cells:
+            return None
+        return self._cells[self.num_cols - 1][self.num_rows - 1]
+
     def init_cells(self, win: Window) -> None:
         """Initializes the matrix of a maze"""
         self._cells = [
@@ -249,6 +259,28 @@ class Maze:
         else:
             return None
 
+    
+    def get_neighbor_coords(self, col: int, row: int, direction: str) -> Tuple[Tuple[int, int], str]:
+        """
+        Dictionary to map direction to neighbor coordinates and opposite wall
+        -----
+        adjacent_cells = {
+            "top": ((col, row - 1, ), "bottom"),
+            "right": ((col + 1, row), "left"),
+            "bottom": ((col, row + 1), "top"),
+            "left": ((col - 1, row), "right"),
+        }
+        return adjacent_cells[direction]
+        """
+        adjacent_cells = {
+            "top": ((col, row - 1, ), "bottom"),
+            "right": ((col + 1, row), "left"),
+            "bottom": ((col, row + 1), "top"),
+            "left": ((col - 1, row), "right"),
+        }
+        return adjacent_cells[direction]
+        
+
     def reset_visited_cells(self):
         """Sets all cells in matrix to unvisited"""
         for col in range(self._num_cols):
@@ -262,20 +294,17 @@ class MazeDrawer:
 
     Attributes
     -----
-    maze : Maze
-    window : Window
+    - maze : Maze
+    - window : Window
 
     Methods:
     ----
-    create_cells -> None : Initializes the matrix of cells and draws them to screen
-    draw_cell(i: int, j: int) -> None : Draws a cell to screen at specified row/column position
-    animate -> None : Animates maze by drawing cells one at a time and allows us to visulize our algorithm
-    draw_entrance_and_exit -> None : Draws entrance and exit to maze by removing the top wall of the first cell and
+    - create_cells  : Initializes the matrix of cells and draws them to screen
+    - draw_cell(i: int, j: int) : Draws a cell to screen at specified row/column position
+    - animate : Animates maze by drawing cells one at a time and allows us to visulize our algorithm
+    - draw_entrance_and_exit  : Draws entrance and exit to maze by removing the top wall of the first cell and
     the bottom wall of the last cell
-    break_walls_r(col : int, row : int) -> None : Recursive backtracking algorithm to create maze
-    get_neighbor_coords(col: int, row: int, direction: str) -> Tuple[Tuple[int, int], str]
-        Returns the coordinates of the neighbor cell and the direction of the wall that connects them
-        
+    - break_walls_r(col : int, row : int)  : Recursive backtracking algorithm to create maze   
     """
 
     def __init__(self, maze: Maze, window: Window):
@@ -287,7 +316,6 @@ class MazeDrawer:
         self._create_entrance_and_exit()
         self._break_walls_r(0, 0)
         self._maze.reset_visited_cells()
-
 
     def _create_cells(self) -> None:
         """Draws matrix of cells to draw to screen"""
@@ -311,10 +339,21 @@ class MazeDrawer:
         cell.draw_wall(cell_x1, cell_y1, cell_x2, cell_y2)
         self._animate()
 
-    def _animate(self) -> None:
-        """Animates maze by drawing cells one at a time and allows us to visulize our algorithm"""
+    def _animate(self, path=False) -> None:
+        """
+        Animates maze by drawing cells one at a time and allows us to visulize our algorithm
+        
+        Parameters
+        -----
+        - path ?: bool : Flag to indicate if method was called to draw cells or path. 
+            Defaults to False
+            Used to determine time to sleep while redrawing
+        """
         self._window.redraw()
-        time.sleep(0.1)
+        if path:
+            time.sleep(0.1)
+        else:
+            time.sleep(0.001)
 
     def _create_entrance_and_exit(self) -> None:
         """Creates entrance and exit to maze by removing the top wall of the first cell and
@@ -344,7 +383,7 @@ class MazeDrawer:
 
         for direction in directions:
             # Get the neighbor cell based on the direction
-            neighbor_coords, opposite_direction = self._get_neighbor_coords(col, row, direction)
+            neighbor_coords, opposite_direction = self._maze.get_neighbor_coords(col, row, direction)
             neighbor_col, neighbor_row = neighbor_coords
            
             # Boundary check
@@ -361,22 +400,68 @@ class MazeDrawer:
                     self._break_walls_r(neighbor_col, neighbor_row)
             self._draw_cell(col, row)
 
-    def _get_neighbor_coords(self, col: int, row: int, direction: str) -> Tuple[Tuple[int, int], str]:
+
+class MazeSolver:
+    """
+    Contains solvers for mazes.
+    """
+
+    def __init__(self, maze: Maze, md: MazeDrawer):
+        self._maze = maze
+        self._drawer = md
+
+    def solve(self, algo="") -> bool:
         """
-        Dictionary to map direction to neighbor coordinates and opposite wall
+        Begins to recursively find solution to maze starting at first cell
+        
+        Parameters
         -----
-        adjacent_cells = {
-            "top": ((col, row - 1, ), "bottom"),
-            "right": ((col + 1, row), "left"),
-            "bottom": ((col, row + 1), "top"),
-            "left": ((col - 1, row), "right"),
-        }
-        return adjacent_cells[direction]
+        algo : "a" for a* algorithm || "d" for depth-first search
         """
-        adjacent_cells = {
-            "top": ((col, row - 1, ), "bottom"),
-            "right": ((col + 1, row), "left"),
-            "bottom": ((col, row + 1), "top"),
-            "left": ((col - 1, row), "right"),
-        }
-        return adjacent_cells[direction]
+        return self._dfs_r(0, 0)
+
+    def _dfs_r(self, col: int, row: int) -> bool:
+        """
+        The _solve_r method returns True if the current cell is an end cell, 
+        OR if it leads to the end cell. It returns False if the current cell is a loser cell.
+        Performs depth-first solution to find end of maze   
+        """
+        
+        # if self._maze.num_cols - 1 == col and self._maze.num_rows - 1 == row:
+        #     return True
+        current_cell = self._maze.get_cell(col, row)
+        current_cell.visited = True
+        
+        if current_cell is self._maze.end_cell:
+            return True      
+        
+        directions = ["top", "right", "bottom", "left"]
+        random.shuffle(directions)
+
+        for direction in directions:
+            neighbor_coords, opposite_direction = self._maze.get_neighbor_coords(col, row, direction)
+            neighbor = self._maze.get_cell(*neighbor_coords)
+
+            neighbor_col, neighbor_row = neighbor_coords
+            
+            # Boundary check
+            if 0 <= neighbor_row < self._maze.num_rows and 0 <= neighbor_col < self._maze.num_cols:
+
+                # If the neighbor hasn't been visited, recurse on it
+                if neighbor and not neighbor.visited and not getattr(neighbor, f"has_{opposite_direction}_wall"):
+                    # draw move to neighbor
+                    current_cell.draw_move(neighbor)
+                    self._drawer._animate(path=True)
+                    if self._dfs_r(neighbor_col, neighbor_row):
+                        return True
+                    else:
+                        neighbor.draw_move(current_cell, undo=True)
+                        self._drawer._animate(path=True)
+
+                    self._dfs_r(neighbor_col, neighbor_row)
+
+        return False
+
+
+        
+        
