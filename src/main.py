@@ -38,13 +38,14 @@ def calculate_window_sizes():
     while True:
         try:
             cols = int(input("Enter number of columns: "))
-            rows = int(input("Enter number of rows: "))
-            print(f"Generating a {cols} by {rows} maze...")
-
-            if 2 < cols > 100 or 2 < rows > 100:
-                print("Columns and rows must be between 2 and 100.")
+            if not is_valid_input(cols):
                 continue
+            rows = int(input("Enter number of rows: "))
+            if not is_valid_input(rows):
+                continue
+
             else:
+                print(f"Generating a {cols} by {rows} maze...")
                 cell_size = 50
                 width = cols * cell_size
                 height = rows * cell_size
@@ -76,6 +77,14 @@ def draw_maze(
     maze = MazeDrawer(my_maze, window)
     window.start()
     window.wait_for_close()
+
+
+def is_valid_input(value: int) -> bool:
+    """Helper function to validate input for maze"""
+    if 2 > value or value > 50:
+        print("Input must be between 2 and 50. Please enter values again.")
+        return False
+    return True
 
 
 if __name__ == "__main__":
