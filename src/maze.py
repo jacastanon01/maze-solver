@@ -166,6 +166,8 @@ class Maze:
     Methods
     -----
     init_cells -> None : Initializes the matrix with Cell objects
+    get_neighbor_coords(col: int, row: int, direction: str) -> Tuple[Tuple[int, int], str]
+        Returns the coordinates of the neighbor cell and the direction of the wall that connects them  
     get_cell(col: int, row: int) -> Cell : Returns the cell at the specified column and row
     """
 
@@ -233,6 +235,18 @@ class Maze:
     def cell_height(self) -> int:
         return self._cell_height
 
+    @property
+    def start_cell(self) -> Cell | None:
+        if not self._cells:
+            return None
+        return self._cells[0][0]
+
+    @property
+    def end_cell(self) -> Cell | None:
+        if not self._cells:
+            return None
+        return self._cells[[self.num_cols - 1][self.num_rows]] 
+
     def init_cells(self, win: Window) -> None:
         """Initializes the matrix of a maze"""
         self._cells = [
@@ -248,6 +262,28 @@ class Maze:
             return self._cells[col][row]
         else:
             return None
+
+    
+    def get_neighbor_coords(self, col: int, row: int, direction: str) -> Tuple[Tuple[int, int], str]:
+        """
+        Dictionary to map direction to neighbor coordinates and opposite wall
+        -----
+        adjacent_cells = {
+            "top": ((col, row - 1, ), "bottom"),
+            "right": ((col + 1, row), "left"),
+            "bottom": ((col, row + 1), "top"),
+            "left": ((col - 1, row), "right"),
+        }
+        return adjacent_cells[direction]
+        """
+        adjacent_cells = {
+            "top": ((col, row - 1, ), "bottom"),
+            "right": ((col + 1, row), "left"),
+            "bottom": ((col, row + 1), "top"),
+            "left": ((col - 1, row), "right"),
+        }
+        return adjacent_cells[direction]
+        
 
     def reset_visited_cells(self):
         """Sets all cells in matrix to unvisited"""
@@ -272,10 +308,7 @@ class MazeDrawer:
     animate -> None : Animates maze by drawing cells one at a time and allows us to visulize our algorithm
     draw_entrance_and_exit -> None : Draws entrance and exit to maze by removing the top wall of the first cell and
     the bottom wall of the last cell
-    break_walls_r(col : int, row : int) -> None : Recursive backtracking algorithm to create maze
-    get_neighbor_coords(col: int, row: int, direction: str) -> Tuple[Tuple[int, int], str]
-        Returns the coordinates of the neighbor cell and the direction of the wall that connects them
-        
+    break_walls_r(col : int, row : int) -> None : Recursive backtracking algorithm to create maze   
     """
 
     def __init__(self, maze: Maze, window: Window):
@@ -344,7 +377,7 @@ class MazeDrawer:
 
         for direction in directions:
             # Get the neighbor cell based on the direction
-            neighbor_coords, opposite_direction = self._get_neighbor_coords(col, row, direction)
+            neighbor_coords, opposite_direction = self._maze.get_neighbor_coords(col, row, direction)
             neighbor_col, neighbor_row = neighbor_coords
            
             # Boundary check
@@ -361,22 +394,52 @@ class MazeDrawer:
                     self._break_walls_r(neighbor_col, neighbor_row)
             self._draw_cell(col, row)
 
-    def _get_neighbor_coords(self, col: int, row: int, direction: str) -> Tuple[Tuple[int, int], str]:
+
+class MazeSolver:
+    """
+    Contains solvers for mazes.
+    """
+
+    def __init__(self, maze: Maze, md: MazeDrawer):
+        self._maze = maze
+        self._drawer = md
+
+    def solve(self, algo="") -> bool:
         """
-        Dictionary to map direction to neighbor coordinates and opposite wall
+        Begins to recursively find solution to maze starting at first cell
+        
+        Parameters
         -----
-        adjacent_cells = {
-            "top": ((col, row - 1, ), "bottom"),
-            "right": ((col + 1, row), "left"),
-            "bottom": ((col, row + 1), "top"),
-            "left": ((col - 1, row), "right"),
-        }
-        return adjacent_cells[direction]
+        algo : "a" for a* algorithm || "d" for depth-first search
         """
-        adjacent_cells = {
-            "top": ((col, row - 1, ), "bottom"),
-            "right": ((col + 1, row), "left"),
-            "bottom": ((col, row + 1), "top"),
-            "left": ((col - 1, row), "right"),
-        }
-        return adjacent_cells[direction]
+        return self.__dfs_r(0, 0)
+
+    def _dfs_r(self, col: int, row: int) -> bool:
+        """
+        The _solve_r method returns True if the current cell is an end cell, 
+        OR if it leads to the end cell. It returns False if the current cell is a loser cell.
+        Performs depth-first solution to find end of maze   
+        """
+        current_cell = self._maze.get_cell(col, row)
+        current_cell.visited = True
+        
+
+        directions = ["top", "right", "bottom", "left"]
+        random.shuffle(directions)
+
+        for direction in directions:
+            neighbor_coords, opposite_direction = self._maze.get_neighbor_coords(col, row, direction)
+            neighbor = self._maze.get_cell(*neighbor_coords)
+
+            neighbor_col, neighbor_row = neighbor_coords
+            
+            # Boundary check
+            if 0 <= neighbor_row < self._maze.num_rows and 0 <= neighbor_col < self._maze.num_cols:
+
+                # If the neighbor hasn't been visited, recurse on it
+                if not neighbor.visited and not getattr(neighbor, f"has_{opposite_direction}_walls"):
+                    self._dfs_r(neighbor_col, neighbor_row)
+
+
+        
+        
