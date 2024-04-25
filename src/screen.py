@@ -26,8 +26,8 @@ class Line:
 
     Attributes
     -----
-    point1 : Point
-    point2 : Point
+    - point1 : Point
+    - point2 : Point
     """
 
     def __init__(self, point1: Point, point2: Point):
@@ -48,17 +48,17 @@ class Window:
 
     Attributes
     -----
-    width : int
-    height : int
+    - width : int
+    - height : int
 
     Methods
     -----
-    wait_for_close : calls self.redraw() if window still is valid
-    draw_line(line : Line, fille_color ?: str) : Draws line to canvas
-    start() : starts mainloop for window to stay open
-    close : terminates window
-    redraw() : Updates window
-    is_valid_window -> bool : checks if window still exists
+    - wait_for_close -> None : calls self.redraw() if window still is valid
+    - draw_line(line : Line, fille_color ?: str) -> None : Draws line to canvas
+    - start() -> None : starts mainloop for window to stay open
+    - close -> None : terminates window
+    - redraw() -> None : Updates window
+    - is_valid_window -> bool : checks if window still exists
     """
 
     def __init__(self, width: int, height: int):
