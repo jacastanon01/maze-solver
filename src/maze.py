@@ -432,8 +432,17 @@ class MazeSolver:
             if 0 <= neighbor_row < self._maze.num_rows and 0 <= neighbor_col < self._maze.num_cols:
 
                 # If the neighbor hasn't been visited, recurse on it
-                if not neighbor.visited and not getattr(neighbor, f"has_{opposite_direction}_walls"):
+                if neighbor and not neighbor.visited and not getattr(neighbor, f"has_{opposite_direction}_walls"):
+                    # draw move to neighbor
+                    current_cell.draw_move(neighbor)
+                    if self._dfs_r(neighbor_col, neighbor_row):
+                        return True
+                    else:
+                        neighbor.draw_move(current_cell, undo=True)
+
                     self._dfs_r(neighbor_col, neighbor_row)
+
+        return False
 
 
         

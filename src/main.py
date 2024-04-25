@@ -44,16 +44,33 @@ def calculate_window_sizes():
             if not is_valid_input(rows):
                 continue
 
-            else:
-                print(f"Generating a {cols} by {rows} maze...")
-                cell_size = 50
-                width = cols * cell_size
-                height = rows * cell_size
+            print(f"Generating a {cols} by {rows} maze...")
+            desired_padding = 50
+            cell_cols = 20 if cols < 25 else 10
+            cell_rows = 20 if rows < 25 else 10
+            window_size = 800
 
-                padding_x = 50 % width if width // 5 <= 1000 else 1000
-                padding_y = 50 % height if height // 5 <= height else height
+            maze_width = cols * cell_cols
+            maze_height = rows * cell_rows
 
-                return (width, height, padding_x, padding_y, cols, rows)
+            window_width = maze_width + (
+                desired_padding * 2
+            )  # Maze size plus padding for left and right
+            window_height = maze_height + (
+                desired_padding * 2
+            )  # Maze size plus padding for top and bottom
+
+            padding_x = (window_size - maze_width) // 2
+            padding_y = (window_size - maze_height) // 2
+
+            return (
+                window_size,
+                window_size,
+                padding_x,
+                padding_y,
+                cols,
+                rows,
+            )
 
         except ValueError as e:
             print("Please enter a valid integer.")
@@ -72,7 +89,9 @@ def draw_maze(
     - cols (int): _description_
     - rows (int): _description_
     """
-    my_maze = Maze(padding_x, padding_y, cols, rows, 10, 10)
+    cell_cols = 20 if cols < 25 else 10
+    cell_rows = 20 if rows < 25 else 10
+    my_maze = Maze(padding_x, padding_y, cols, rows, cell_cols, cell_rows)
     window = Window(width, height)
     maze = MazeDrawer(my_maze, window)
     window.start()
