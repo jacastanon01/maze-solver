@@ -339,10 +339,21 @@ class MazeDrawer:
         cell.draw_wall(cell_x1, cell_y1, cell_x2, cell_y2)
         self._animate()
 
-    def _animate(self) -> None:
-        """Animates maze by drawing cells one at a time and allows us to visulize our algorithm"""
+    def _animate(self, path=False) -> None:
+        """
+        Animates maze by drawing cells one at a time and allows us to visulize our algorithm
+        
+        Parameters
+        -----
+        - path ?: bool : Flag to indicate if method was called to draw cells or path. 
+            Defaults to False
+            Used to determine time to sleep while redrawing
+        """
         self._window.redraw()
-        time.sleep(0.05)
+        if path:
+            time.sleep(0.1)
+        else:
+            time.sleep(0.001)
 
     def _create_entrance_and_exit(self) -> None:
         """Creates entrance and exit to maze by removing the top wall of the first cell and
@@ -440,12 +451,12 @@ class MazeSolver:
                 if neighbor and not neighbor.visited and not getattr(neighbor, f"has_{opposite_direction}_wall"):
                     # draw move to neighbor
                     current_cell.draw_move(neighbor)
-                    self._drawer._animate()
+                    self._drawer._animate(path=True)
                     if self._dfs_r(neighbor_col, neighbor_row):
                         return True
                     else:
                         neighbor.draw_move(current_cell, undo=True)
-                        self._drawer._animate()
+                        self._drawer._animate(path=True)
 
                     self._dfs_r(neighbor_col, neighbor_row)
 
