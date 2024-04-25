@@ -241,7 +241,7 @@ class Maze:
     def end_cell(self) -> Cell | None:
         if not self._cells:
             return None
-        return self._cells[[self.num_cols - 1][self.num_rows]] 
+        return self._cells[self.num_cols - 1][self.num_rows - 1]
 
     def init_cells(self, win: Window) -> None:
         """Initializes the matrix of a maze"""
@@ -407,7 +407,7 @@ class MazeSolver:
         -----
         algo : "a" for a* algorithm || "d" for depth-first search
         """
-        return self.__dfs_r(0, 0)
+        return self._dfs_r(0, 0)
 
     def _dfs_r(self, col: int, row: int) -> bool:
         """
@@ -415,10 +415,15 @@ class MazeSolver:
         OR if it leads to the end cell. It returns False if the current cell is a loser cell.
         Performs depth-first solution to find end of maze   
         """
+        
+        # if self._maze.num_cols - 1 == col and self._maze.num_rows - 1 == row:
+        #     return True
         current_cell = self._maze.get_cell(col, row)
         current_cell.visited = True
         
-
+        if current_cell is self._maze.end_cell:
+            return True      
+        
         directions = ["top", "right", "bottom", "left"]
         random.shuffle(directions)
 
@@ -432,13 +437,15 @@ class MazeSolver:
             if 0 <= neighbor_row < self._maze.num_rows and 0 <= neighbor_col < self._maze.num_cols:
 
                 # If the neighbor hasn't been visited, recurse on it
-                if neighbor and not neighbor.visited and not getattr(neighbor, f"has_{opposite_direction}_walls"):
+                if neighbor and not neighbor.visited and not getattr(neighbor, f"has_{opposite_direction}_wall"):
                     # draw move to neighbor
                     current_cell.draw_move(neighbor)
+                    self._drawer._animate()
                     if self._dfs_r(neighbor_col, neighbor_row):
                         return True
                     else:
                         neighbor.draw_move(current_cell, undo=True)
+                        self._drawer._animate()
 
                     self._dfs_r(neighbor_col, neighbor_row)
 
