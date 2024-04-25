@@ -11,32 +11,51 @@ def main() -> None:
         "Welcome to the Maze Solver where you can visualize the path you take to solve a maze.",
         end=f"\n{'=' * 10}\n",
     )
-    render_maze()
+
+    width, height, padding_x, padding_y, cols, rows = calculate_window_sizes()
+    while True:
+        try:
+            draw_maze(width, height, padding_x, padding_y, cols, rows)
+            choice = int(input("Enter 1 to solve the maze or 2 to exit: "))
+            if choice == 1:
+                print("\nSolving maze...")
+                solve_maze()
+                break
+            elif choice == 2:
+                print("Exiting program.")
+                break
+            else:
+                print("Invalid input. Try again.")
+        except ValueError as e:
+            print("\nPlease enter a valid integer.")
 
 
-def render_maze():
+def calculate_window_sizes():
     """
     Takes user input of columns and rows to calculate the size of a window based on those values.
     Calls draw_maze with input values to draw the maze
     """
     while True:
-        cols = int(input("Enter number of columns: "))
-        rows = int(input("Enter number of rows: "))
-        print(f"Generating a {cols} by {rows} maze...")
+        try:
+            cols = int(input("Enter number of columns: "))
+            rows = int(input("Enter number of rows: "))
+            print(f"Generating a {cols} by {rows} maze...")
 
-        if 2 < cols > 100 or 2 < rows > 100:
-            print("Columns and rows must be between 2 and 100.")
-            continue
-        else:
-            cell_size = 50
-            width = cols * cell_size
-            height = rows * cell_size
+            if 2 < cols > 100 or 2 < rows > 100:
+                print("Columns and rows must be between 2 and 100.")
+                continue
+            else:
+                cell_size = 50
+                width = cols * cell_size
+                height = rows * cell_size
 
-            padding_x = 50 % width if width // 5 <= 1000 else 1000
-            padding_y = 50 % height if height // 5 <= height else height
+                padding_x = 50 % width if width // 5 <= 1000 else 1000
+                padding_y = 50 % height if height // 5 <= height else height
 
-            draw_maze(width, height, padding_x, padding_y, cols, rows)
-            break
+                return (width, height, padding_x, padding_y, cols, rows)
+
+        except ValueError as e:
+            print("Please enter a valid integer.")
 
 
 def draw_maze(
