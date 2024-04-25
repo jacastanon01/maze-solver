@@ -1,4 +1,4 @@
-from tkinter import Tk, BOTH, Canvas, TclError
+from tkinter import Tk, BOTH, Canvas, TclError, Frame
 
 
 class Point:
@@ -65,13 +65,6 @@ class Window:
         self._width = width
         self._height = height
         self.__root = Tk()
-        self._canvas = Canvas(
-            self.__root,
-            bg="white",
-            height=self._height,
-            width=self._width,
-        )
-
         self.__root.title("Maze Solver")
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
         self._canvas.pack(fill=BOTH, expand=True)
@@ -87,15 +80,6 @@ class Window:
     @property
     def height(self) -> int:
         return self._height
-
-    def draw_line(self, line: Line, fill_color: str = "black") -> None:
-        """
-        Responsible for drawing a line on the canvas
-        """
-        point1, point2 = line.get_points()
-        x1, y1 = point1.x, point1.y
-        x2, y2 = point2.x, point2.y
-        self._canvas.create_line(x1, y1, x2, y2, fill=fill_color, width=2)
 
     def wait_for_close(self) -> None:
         """Method that checks if window is still open before drawing to it"""
@@ -126,3 +110,22 @@ class Window:
             return self.__root.winfo_exists()
         except TclError:
             return False
+
+
+class CanvasFrame(Frame):
+    def __init__(self, parent, **kwargs):
+        super().__init__(parent, **kwargs)
+        self._canvas = Canvas(
+            self,
+            bg="white",
+        )
+        self._canvas.pack(fill=BOTH, expand=True)
+
+    def draw_line(self, line: Line, fill_color: str = "black") -> None:
+        """
+        Responsible for drawing a line on the canvas
+        """
+        point1, point2 = line.get_points()
+        x1, y1 = point1.x, point1.y
+        x2, y2 = point2.x, point2.y
+        self._canvas.create_line(x1, y1, x2, y2, fill=fill_color, width=2)
