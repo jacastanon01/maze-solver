@@ -44,7 +44,7 @@ class Line:
 
 class Window:
     """
-    Class that represents the Tkinter window
+    Class that containig data of Tkinter window
 
     Attributes
     -----
@@ -54,7 +54,6 @@ class Window:
     Methods
     -----
     - wait_for_close -> None : calls self.redraw() if window still is valid
-    - draw_line(line : Line, fille_color ?: str) -> None : Draws line to canvas
     - start() -> None : starts mainloop for window to stay open
     - close -> None : terminates window
     - redraw() -> None : Updates window
@@ -65,9 +64,11 @@ class Window:
         self._width = width
         self._height = height
         self.__root = Tk()
+        self.__root.geometry(f"{self._width}x{self._height}")
+        self.__canvas = CanvasFrame(self.__root, self)
         self.__root.title("Maze Solver")
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
-        self._canvas.pack(fill=BOTH, expand=True)
+        self.__canvas.pack(fill=BOTH, expand=True)
 
     @property
     def root(self) -> Tk:
@@ -80,6 +81,10 @@ class Window:
     @property
     def height(self) -> int:
         return self._height
+
+    @property
+    def canvas(self) -> CanvasFrame:
+        return self.__canvas
 
     def wait_for_close(self) -> None:
         """Method that checks if window is still open before drawing to it"""
@@ -99,7 +104,9 @@ class Window:
             self.__root.destroy()
 
     def redraw(self) -> None:
-        """Method that updates Tkinter root"""
+        """
+        Method that updates Tkinter root to draw to it
+        """
         if self.is_valid_window():
             self.__root.update_idletasks()
             self.__root.update()
@@ -113,13 +120,22 @@ class Window:
 
 
 class CanvasFrame(Frame):
-    def __init__(self, parent, **kwargs):
-        super().__init__(parent, **kwargs)
-        self._canvas = Canvas(
+    """
+    Behvaior class that handles interactions between maze and canvas
+
+    Methods
+    -----
+    - draw_line(line : Line, fille_color ?: str) -> None : Draws line to canvas
+    """
+
+    def __init__(self, parent: Tk, window: Window):
+        super().__init__(parent)
+        self.__window = window
+        self.__canvas = Canvas(
             self,
             bg="white",
         )
-        self._canvas.pack(fill=BOTH, expand=True)
+        self.__canvas.pack(fill=BOTH, expand=True)
 
     def draw_line(self, line: Line, fill_color: str = "black") -> None:
         """
@@ -128,4 +144,4 @@ class CanvasFrame(Frame):
         point1, point2 = line.get_points()
         x1, y1 = point1.x, point1.y
         x2, y2 = point2.x, point2.y
-        self._canvas.create_line(x1, y1, x2, y2, fill=fill_color, width=2)
+        self.__canvas.create_line(x1, y1, x2, y2, fill=fill_color, width=2)

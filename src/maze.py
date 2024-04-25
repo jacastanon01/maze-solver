@@ -161,10 +161,12 @@ class Maze:
 
     Methods
     -----
-    - init_cells  : Initializes the matrix with Cell objects
     - get_neighbor_coords(col: int, row: int, direction: str) -> Tuple[Tuple[int, int], str]
         Returns the coordinates of the neighbor cell and the direction of the wall that connects them  
     - get_cell(col: int, row: int) -> Cell : Returns the cell at the specified column and row
+    - get_neighbor_coords(col: int, row: int, direction: str) -> Tuple[Tuple[int, int], str]:
+        Returns all the neboring cells from a cell in a given position
+    - reset_visited_cells -> None : Resets all cell's visited attribute to False
     """
 
     def __init__(
@@ -243,15 +245,14 @@ class Maze:
             return None
         return self._cells[self.num_cols - 1][self.num_rows - 1]
 
-    @property.setter
-    def set_cells(self, new_cells: List[List[Cell]]) -> None:
-        self._cells = new_cells
+    @property 
+    def cells(self) -> List[List[Cell]]:
+        return self._cells
 
-    # def init_cells(self, win: Window) -> None:
-    #     """Initializes the matrix of a maze"""
-    #     self._cells = [
-    #         [Cell(win) for _ in range(self._num_rows)] for _ in range(self._num_cols)
-    #     ]
+    @cells.setter
+    def cells(self, new_cells: List[List[Cell]]) -> None:
+        if len(new_cells) == self.num_rows:
+            self._cells = new_cells
 
     def get_cell(self, col: int, row: int) -> Cell | None:
         """
@@ -303,6 +304,7 @@ class MazeDrawer:
 
     Methods:
     ----
+    - init_cells  : Initializes the matrix with Cell objects
     - create_cells  : Initializes the matrix of cells and draws them to screen
     - draw_cell(i: int, j: int) : Draws a cell to screen at specified row/column position
     - animate : Animates maze by drawing cells one at a time and allows us to visulize our algorithm
@@ -323,9 +325,10 @@ class MazeDrawer:
     def _init_cells(self) -> None:
         """Initializes the matrix of a maze"""
         new_cells = [
-            [Cell(self._window) for _ in range(self._num_rows)] for _ in range(self._num_cols)
+            [Cell(self._window) for _ in range(self._maze.num_rows)] 
+            for _ in range(self._maze.num_cols)
         ]
-        self._maze.set_cells(new_cells)
+        self._maze.cells = new_cells
 
     def _create_cells(self) -> None:
         """Draws matrix of cells to draw to screen"""
