@@ -1,8 +1,9 @@
 from random import randint, choice
 import argparse
+from typing import Tuple
 
 
-from src.maze import Maze, MazeDrawer
+from src.maze import Maze, MazeDrawer, MazeSolver
 from src.screen import Window
 
 
@@ -13,24 +14,14 @@ def main() -> None:
     )
 
     width, height, padding_x, padding_y, cols, rows = calculate_window_sizes()
-    while True:
-        try:
-            draw_maze(width, height, padding_x, padding_y, cols, rows)
-            choice = int(input("Enter 1 to solve the maze or 2 to exit: "))
-            if choice == 1:
-                print("\nSolving maze...")
-                solve_maze()
-                break
-            elif choice == 2:
-                print("Exiting program.")
-                break
-            else:
-                print("Invalid input. Try again.")
-        except ValueError as e:
-            print("\nPlease enter a valid integer.")
+    cell_cols = 20 if cols < 25 else 10
+    cell_rows = 20 if rows < 25 else 10
+    my_maze = Maze(padding_x, padding_y, cols, rows, cell_cols, cell_rows)
+    window = Window(width, height)
+    render_maze(my_maze, window)
 
 
-def calculate_window_sizes():
+def calculate_window_sizes() -> Tuple[int, int, int, int, int, int]:
     """
     Takes user input of columns and rows to calculate the size of a window based on those values.
     Calls draw_maze with input values to draw the maze
@@ -76,9 +67,7 @@ def calculate_window_sizes():
             print("Please enter a valid integer.")
 
 
-def draw_maze(
-    width: int, height: int, padding_x: int, padding_y: int, cols: int, rows: int
-) -> None:
+def render_maze(maze: Maze, window: Window) -> None:
     """
     Draws a maze with the given parameters
 
@@ -89,13 +78,16 @@ def draw_maze(
     - cols (int): _description_
     - rows (int): _description_
     """
-    cell_cols = 20 if cols < 25 else 10
-    cell_rows = 20 if rows < 25 else 10
-    my_maze = Maze(padding_x, padding_y, cols, rows, cell_cols, cell_rows)
-    window = Window(width, height)
-    maze = MazeDrawer(my_maze, window)
+    drawer = MazeDrawer(maze, window)
+    solve_maze(maze, drawer)
     window.start()
     window.wait_for_close()
+
+
+def solve_maze(maze: Maze, drawer: MazeDrawer) -> None:
+    """Creates MazeSolver instance to call solve method on maze"""
+    solution = MazeSolver(maze, drawer)
+    solution.solve()
 
 
 def is_valid_input(value: int) -> bool:
