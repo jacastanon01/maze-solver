@@ -1,4 +1,4 @@
-from tkinter import Tk, BOTH, Canvas, TclError, Frame
+from tkinter import Tk, BOTH, Canvas, TclError, Frame, Button, Entry
 
 
 class Point:
@@ -68,6 +68,7 @@ class Window:
         self.__canvas = CanvasFrame(self.__root, self)
         self.__root.title("Maze Solver")
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
+        self.__widgets = ButtonWidgets(self.__root)
         self.__canvas.pack(fill=BOTH, expand=True)
 
     @property
@@ -116,7 +117,7 @@ class Window:
         try:
             return self.__root.winfo_exists()
         except TclError:
-            return False
+            pass
 
 
 class CanvasFrame(Frame):
@@ -153,3 +154,39 @@ class CanvasFrame(Frame):
         if self.__window.is_valid_window():
             self.__window.root.update_idletasks()
             self.__window.root.update()
+
+
+class ButtonWidgets:
+    """Class that contains all buttons in the maze solver"""
+
+    def __init__(self, parent):
+        # Add buttons and entries
+        self.reset_button = Button(parent, text="Reset", command=self.reset)
+        self.draw_button = Button(parent, text="Draw", command=self.draw)
+        self.solve_button = Button(parent, text="Solve", command=self.solve)
+        self.rows_entry = Entry(parent, textvariable="row", width=5)
+        self.columns_entry = Entry(parent, textvariable="column", width=5)
+
+        # TODO set up pack widgets into frame, specificy coordinates
+        self.reset_button.pack()
+        self.draw_button.pack()
+        self.solve_button.pack()
+        self.rows_entry.pack()
+        self.columns_entry.pack()
+
+    def draw(self):
+        """ "Method that draws the maze"""
+        pass
+
+    def solve(self):
+        """ ""Method that solves the maze"""
+        pass
+
+    def reset(self):
+        """ ""Method that resets the maze"""
+        pass
+
+
+if __name__ == "__main__":
+    window = Window(1000, 600)
+    window.start()
