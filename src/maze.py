@@ -259,7 +259,6 @@ class Maze:
         Returns the cell at the specified row and column.
         Returns None if the cell is out of bounds.
         """
-        print(f"\n\n********************\n{col} row: {row}\n\n")
         if 0 <= row < self._num_rows and 0 <= col < self._num_cols:
             return self._cells[col][row]
         else:
