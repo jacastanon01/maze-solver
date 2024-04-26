@@ -83,7 +83,7 @@ class Window:
         return self._height
 
     @property
-    def canvas(self) -> CanvasFrame:
+    def canvas(self) -> "CanvasFrame":
         return self.__canvas
 
     def wait_for_close(self) -> None:
@@ -145,3 +145,11 @@ class CanvasFrame(Frame):
         x1, y1 = point1.x, point1.y
         x2, y2 = point2.x, point2.y
         self.__canvas.create_line(x1, y1, x2, y2, fill=fill_color, width=2)
+
+    def redraw(self) -> None:
+        """
+        Method that updates Tkinter root to draw to it
+        """
+        if self.__window.is_valid_window():
+            self.__window.root.update_idletasks()
+            self.__window.root.update()

@@ -2,7 +2,7 @@ import time
 import random
 from typing import Dict, Tuple, List
 
-from src.screen import Window, Line, Point
+from src.screen import Window, Line, Point, CanvasFrame
 
 
 class Cell:
@@ -113,7 +113,7 @@ class Cell:
             point1 = wall_directions[direction][:2]
             point2 = wall_directions[direction][2:]
             wall_line = Line(Point(*point1), Point(*point2))
-            self._window.draw_line(wall_line, fill_color)
+            self._window.canvas.draw_line(wall_line, fill_color)
 
     def draw_move(self, to_cell: "Cell", undo=False) -> None:
         """
@@ -141,7 +141,7 @@ class Cell:
             Point(center_x_source, center_y_source),
             Point(center_x_destination, center_y_destination),
         )
-        self._window.draw_line(line, fill_color=line_color)
+        self._window.canvas.draw_line(line, fill_color=line_color)
 
 
 class Maze:
@@ -259,6 +259,7 @@ class Maze:
         Returns the cell at the specified row and column.
         Returns None if the cell is out of bounds.
         """
+        print(f"\n\n********************\n{col} row: {row}\n\n")
         if 0 <= row < self._num_rows and 0 <= col < self._num_cols:
             return self._cells[col][row]
         else:
@@ -363,7 +364,7 @@ class MazeDrawer:
             Defaults to False
             Used to determine time to sleep while redrawing
         """
-        self._window.redraw()
+        self._window.canvas.redraw()
         if path:
             time.sleep(0.1)
         else:
