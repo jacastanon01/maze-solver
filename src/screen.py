@@ -20,6 +20,9 @@ from tkinter import (
 from tkinter.messagebox import showerror
 
 
+from src.utils import initialize_maze, solve_maze
+
+
 class Point:
     """Data Class that represents position on x,y grid"""
 
@@ -192,7 +195,9 @@ class CanvasFrame(Frame):
 class ButtonWidgets:
     """Class that contains all buttons in the maze solver"""
 
-    def __init__(self, parent):
+    def __init__(self, parent: Frame):
+        self._container = None
+        self._parent = parent
         # Grid placement for buttons
         self.reset_button = Button(
             parent, text="Reset", command=self.reset, cursor="exchange"
@@ -205,7 +210,9 @@ class ButtonWidgets:
         self.solve_button.grid(row=2, column=0, padx=5, sticky="nsew")
 
         # User input
-        self.draw_button = Button(parent, text="Draw", command=draw, cursor="arrow")
+        self.draw_button = Button(
+            parent, text="Draw", command=self.draw, cursor="arrow"
+        )
         self.draw_button.grid(
             row=2, column=1, columnspan=2, ipadx=5, ipady=5, sticky="ew"
         )
@@ -249,12 +256,15 @@ class ButtonWidgets:
         try:
             cols = int(self.col_input.get())
             rows = int(self.row_input.get())
+            container = initialize_maze(cols, rows)
+            print(container)
+            self._container = container
         except ValueError as e:
             showerror(title="Error", message=e)
 
     def solve(self):
         """Method that solves the maze"""
-        print("Solving...")
+        print(self._container)
 
     def reset(self):
         """Method that resets the maze"""
