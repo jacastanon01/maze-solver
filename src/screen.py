@@ -82,10 +82,10 @@ class Window:
         self._height = height
         self.__root = Tk()
         self.__root.geometry(f"{self._width}x{self._height}")
+        self.__widgets = ButtonWidgets(self.__root)
         self.__canvas = CanvasFrame(self.__root, self)
         self.__root.title("Maze Solver")
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
-        self.__widgets = ButtonWidgets(self.__root)
         self.__canvas.pack(fill=BOTH, expand=True)
 
     @property
@@ -153,7 +153,7 @@ class CanvasFrame(Frame):
             self,
             bg="white",
         )
-        self.__canvas.pack(fill=BOTH, expand=True)
+        self.__canvas.pack(side=BOTTOM, expand=True)
 
     def draw_line(self, line: Line, fill_color: str = "black") -> None:
         """
