@@ -1,7 +1,6 @@
 import time
 import random
 from typing import Dict, Tuple, List
-from tkinter import BOTH
 
 from src.screen import Window, Line, Point, CanvasFrame
 
@@ -341,22 +340,21 @@ class MazeDrawer:
 
         
 
-    def center_maze(self) -> None:
-        """Calculates necessary space to render maze at the center of its canvas"""
-        canvas_width = self._window.canvas.winfo_width()
-        canvas_height = self._window.canvas.winfo_height()
+    # def center_maze(self) -> None:
+    #     """Calculates necessary space to render maze at the center of its canvas"""
+    #     canvas_width = self._window.canvas.winfo_width()
+    #     canvas_height = self._window.canvas.winfo_height()
 
-        print(canvas_height, canvas_width, end="\n!!!!!!!!!!")
-        maze_width = self._maze.num_cols * 10
-        maze_height = self._maze.num_rows * 10
+    #     print(canvas_height, canvas_width, end="\n!!!!!!!!!!")
+    #     maze_width = self._maze.num_cols * 10
+    #     maze_height = self._maze.num_rows * 10
 
-        x_start = (canvas_width - maze_width) / 2
-        y_start = (canvas_height - maze_height) / 2
+    #     x_start = (canvas_width - maze_width) / 2
+    #     y_start = (canvas_height - maze_height) / 2
 
-        self._maze.x_start = x_start
-        self._maze.y_start = y_start
+    #     self._maze.x_start = x_start
+    #     self._maze.y_start = y_start
 
-        # self._animate()
 
     def _init_cells(self) -> None:
         """Initializes the matrix of a maze"""
@@ -460,13 +458,11 @@ class MazeSolver:
         self._maze = maze
         self._drawer = md
 
-    def solve(self, algo="") -> bool:
+    def solve(self) -> bool:
         """
-        Begins to recursively find solution to maze starting at first cell
-        
-        Parameters
-        -----
-        algo : "a" for a* algorithm || "d" for depth-first search
+        Solves maze using depth-first traversal to find exit path
+        Calls self._dfs_r from the first cell
+        return self._dfs_r(0, 0)
         """
         return self._dfs_r(0, 0)
 

@@ -17,6 +17,7 @@ from tkinter import (
     Label,
     StringVar,
 )
+from tkinter.messagebox import showerror
 
 
 class Point:
@@ -204,9 +205,7 @@ class ButtonWidgets:
         self.solve_button.grid(row=2, column=0, padx=5, sticky="nsew")
 
         # User input
-        self.draw_button = Button(
-            parent, text="Draw", command=self.draw, cursor="arrow"
-        )
+        self.draw_button = Button(parent, text="Draw", command=draw, cursor="arrow")
         self.draw_button.grid(
             row=2, column=1, columnspan=2, ipadx=5, ipady=5, sticky="ew"
         )
@@ -222,8 +221,10 @@ class ButtonWidgets:
             bg="white",
             fg="black",
             takefocus=True,
+            font=("Helvetica", 14),
+            justify="center",
         )
-        self.rows_entry.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
+        self.rows_entry.grid(row=1, column=1, ipadx=5, ipady=5, sticky="ew")
 
         self.col_input = StringVar()
         col_label = Label(parent, text="Columns", font=("Helvetica", 14))
@@ -234,24 +235,29 @@ class ButtonWidgets:
             width=5,
             bg="white",
             fg="black",
+            font=("Helvetica", 14),
+            justify="center",
         )
-        self.columns_entry.grid(row=1, column=2, padx=5, pady=5, sticky="ew")
+        self.columns_entry.grid(row=1, column=2, ipadx=5, ipady=5, sticky="ew")
 
         for i in range(3):
             parent.grid_columnconfigure(i, weight=1)
         parent.grid_rowconfigure(1, weight=2)
 
     def draw(self):
-        """ "Method that draws the maze"""
-        print("Drawing..")
-        print(f"Row: {self.row_input}\nCol: {self.col_input}")
+        """Method that draws the maze"""
+        try:
+            cols = int(self.col_input.get())
+            rows = int(self.row_input.get())
+        except ValueError as e:
+            showerror(title="Error", message=e)
 
     def solve(self):
-        """ ""Method that solves the maze"""
+        """Method that solves the maze"""
         print("Solving...")
 
     def reset(self):
-        """ ""Method that resets the maze"""
+        """Method that resets the maze"""
         print("Resetting...")
 
 
