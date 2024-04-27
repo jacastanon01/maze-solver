@@ -251,7 +251,7 @@ class Maze:
 
     @cells.setter
     def cells(self, new_cells: List[List[Cell]]) -> None:
-        if len(new_cells) == self.num_rows:
+        if len(new_cells) == self.num_cols:
             self._cells = new_cells
 
     def get_cell(self, col: int, row: int) -> Cell | None:
