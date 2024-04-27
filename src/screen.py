@@ -14,6 +14,7 @@ from tkinter import (
     LEFT,
     RIGHT,
     TOP,
+    Label,
     StringVar,
 )
 
@@ -82,8 +83,22 @@ class Window:
         self._height = height
         self.__root = Tk()
         self.__root.geometry(f"{self._width}x{self._height}")
-        self.__widgets = ButtonWidgets(self.__root)
-        self.__canvas = CanvasFrame(self.__root, self)
+
+        # Define frames
+        control_frame = Frame(self.__root)
+        control_frame.grid(row=0, column=0, sticky="ew", padx=5, pady=10)
+
+        canvas_frame = Frame(self.__root)
+        canvas_frame.grid(row=1, column=0, sticky="nsew")
+
+        # make canvas frame expandable
+        self.__root.grid_rowconfigure(1, weight=1)
+        self.__root.grid_columnconfigure(0, weight=1)
+
+        # initialize widgets with frames
+        self.__widgets = ButtonWidgets(control_frame)
+        self.__canvas = CanvasFrame(canvas_frame, self)
+
         self.__root.title("Maze Solver")
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
         self.__canvas.pack(fill=BOTH, expand=True)
@@ -146,14 +161,14 @@ class CanvasFrame(Frame):
     - draw_line(line : Line, fille_color ?: str) -> None : Draws line to canvas
     """
 
-    def __init__(self, parent: Tk, window: Window):
+    def __init__(self, parent: Frame, window: Window):
         super().__init__(parent)
         self.__window = window
         self.__canvas = Canvas(
             self,
             bg="white",
         )
-        self.__canvas.pack(side=BOTTOM, expand=True)
+        self.__canvas.pack(fill=BOTH, expand=True)
 
     def draw_line(self, line: Line, fill_color: str = "black") -> None:
         """
@@ -177,17 +192,42 @@ class ButtonWidgets:
     """Class that contains all buttons in the maze solver"""
 
     def __init__(self, parent):
-        # Add buttons and entries
-        self.reset_button = Button(parent, text="Reset", command=self.reset)
-        self.draw_button = Button(parent, text="Draw", command=self.draw)
-        self.solve_button = Button(parent, text="Solve", command=self.solve)
+        # Grid placement for buttons
+        self.reset_button = Button(
+            parent, text="Reset", command=self.reset, cursor="exchange"
+        )
+        self.reset_button.grid(row=1, column=0, padx=5, sticky="nsew")
+
+        self.solve_button = Button(
+            parent, text="Solve", command=self.solve, cursor="arrow"
+        )
+        self.solve_button.grid(row=2, column=0, padx=5, sticky="nsew")
+
+        # User input
+        self.draw_button = Button(
+            parent, text="Draw", command=self.draw, cursor="arrow"
+        )
+        self.draw_button.grid(
+            row=2, column=1, columnspan=2, ipadx=5, ipady=5, sticky="ew"
+        )
 
         # Add entries
         self.row_input = StringVar()
+        row_label = Label(parent, text="Rows", font=("Helvetica", 14))
+        row_label.grid(row=0, column=1, sticky="ew")
         self.rows_entry = Entry(
-            parent, textvariable=self.row_input, width=5, bg="white", fg="black"
+            parent,
+            textvariable=self.row_input,
+            width=5,
+            bg="white",
+            fg="black",
+            takefocus=True,
         )
+        self.rows_entry.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
+
         self.col_input = StringVar()
+        col_label = Label(parent, text="Columns", font=("Helvetica", 14))
+        col_label.grid(row=0, column=2, sticky="ew")
         self.columns_entry = Entry(
             parent,
             textvariable=self.col_input,
@@ -195,17 +235,16 @@ class ButtonWidgets:
             bg="white",
             fg="black",
         )
+        self.columns_entry.grid(row=1, column=2, padx=5, pady=5, sticky="ew")
 
-        # Set up pack widgets into frame, specificy coordinates
-        self.reset_button.pack(side=TOP, padx=5)
-        self.draw_button.pack(side=TOP, padx=5)
-        self.solve_button.pack(side=TOP, padx=5)
-        self.rows_entry.pack(side=TOP, padx=5)
-        self.columns_entry.pack(side=TOP, padx=5)
+        for i in range(3):
+            parent.grid_columnconfigure(i, weight=1)
+        parent.grid_rowconfigure(1, weight=2)
 
     def draw(self):
         """ "Method that draws the maze"""
         print("Drawing..")
+        print(f"Row: {self.row_input}\nCol: {self.col_input}")
 
     def solve(self):
         """ ""Method that solves the maze"""

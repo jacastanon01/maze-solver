@@ -1,6 +1,7 @@
 import time
 import random
 from typing import Dict, Tuple, List
+from tkinter import BOTH
 
 from src.screen import Window, Line, Point, CanvasFrame
 
@@ -213,9 +214,22 @@ class Maze:
     def x_start(self) -> int:
         return self._x_start
 
+    @x_start.setter
+    def x_start(self, new_x) -> None:
+        print(f"\n************\n{new_x}")
+        # if new_x < 0 or new_x > self.num_cols:
+        #     raise ValueError("x_start must be within the maze's columns.")
+        self._x_start = new_x
+
     @property
     def y_start(self) -> int:
         return self._y_start
+
+    @y_start.setter
+    def y_start(self, new_y: int) -> None:
+        # if new_y < 0 or new_y > self.num_rows:
+        #     raise ValueError("y_start must be within the maze's rows")
+        self._y_start = new_y
 
     @property
     def num_cols(self) -> int:
@@ -316,11 +330,33 @@ class MazeDrawer:
     def __init__(self, maze: Maze, window: Window):
         self._maze = maze
         self._window = window
+        # self.center_maze()
+        self._init_cells()
+        # self._window.root.after(10, self.center_maze)
 
         self._create_cells()
         self._create_entrance_and_exit()
         self._break_walls_r(0, 0)
         self._maze.reset_visited_cells()
+
+        
+
+    def center_maze(self) -> None:
+        """Calculates necessary space to render maze at the center of its canvas"""
+        canvas_width = self._window.canvas.winfo_width()
+        canvas_height = self._window.canvas.winfo_height()
+
+        print(canvas_height, canvas_width, end="\n!!!!!!!!!!")
+        maze_width = self._maze.num_cols * 10
+        maze_height = self._maze.num_rows * 10
+
+        x_start = (canvas_width - maze_width) / 2
+        y_start = (canvas_height - maze_height) / 2
+
+        self._maze.x_start = x_start
+        self._maze.y_start = y_start
+
+        # self._animate()
 
     def _init_cells(self) -> None:
         """Initializes the matrix of a maze"""
@@ -332,7 +368,7 @@ class MazeDrawer:
 
     def _create_cells(self) -> None:
         """Draws matrix of cells to draw to screen"""
-        self._init_cells()
+
         if self._maze.num_cols <= 0 or self._maze.num_rows <= 0:
             raise ValueError("Maze must have a positive number of rows and columns")
         for i in range(self._maze.num_cols):
