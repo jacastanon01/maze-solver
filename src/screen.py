@@ -1,4 +1,21 @@
-from tkinter import Tk, BOTH, Canvas, TclError, Frame, Button, Entry
+from tkinter import (
+    Tk,
+    BOTH,
+    Canvas,
+    TclError,
+    Frame,
+    Button,
+    Entry,
+    X,
+    Y,
+    NE,
+    NS,
+    BOTTOM,
+    LEFT,
+    RIGHT,
+    TOP,
+    StringVar,
+)
 
 
 class Point:
@@ -164,27 +181,39 @@ class ButtonWidgets:
         self.reset_button = Button(parent, text="Reset", command=self.reset)
         self.draw_button = Button(parent, text="Draw", command=self.draw)
         self.solve_button = Button(parent, text="Solve", command=self.solve)
-        self.rows_entry = Entry(parent, textvariable="row", width=5)
-        self.columns_entry = Entry(parent, textvariable="column", width=5)
 
-        # TODO set up pack widgets into frame, specificy coordinates
-        self.reset_button.pack()
-        self.draw_button.pack()
-        self.solve_button.pack()
-        self.rows_entry.pack()
-        self.columns_entry.pack()
+        # Add entries
+        self.row_input = StringVar()
+        self.rows_entry = Entry(
+            parent, textvariable=self.row_input, width=5, bg="white", fg="black"
+        )
+        self.col_input = StringVar()
+        self.columns_entry = Entry(
+            parent,
+            textvariable=self.col_input,
+            width=5,
+            bg="white",
+            fg="black",
+        )
+
+        # Set up pack widgets into frame, specificy coordinates
+        self.reset_button.pack(side=TOP, padx=5)
+        self.draw_button.pack(side=TOP, padx=5)
+        self.solve_button.pack(side=TOP, padx=5)
+        self.rows_entry.pack(side=TOP, padx=5)
+        self.columns_entry.pack(side=TOP, padx=5)
 
     def draw(self):
         """ "Method that draws the maze"""
-        pass
+        print("Drawing..")
 
     def solve(self):
         """ ""Method that solves the maze"""
-        pass
+        print("Solving...")
 
     def reset(self):
         """ ""Method that resets the maze"""
-        pass
+        print("Resetting...")
 
 
 if __name__ == "__main__":
