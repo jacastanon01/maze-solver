@@ -15,12 +15,12 @@ from tkinter import (
     RIGHT,
     TOP,
     Label,
-    StringVar,
+    IntVar,
 )
 from tkinter.messagebox import showerror
 
 
-from src.utils import initialize_maze, solve_maze
+from src.utils import initialize_maze, solve_maze, render_maze
 
 
 class Point:
@@ -88,24 +88,29 @@ class Window:
         self.__root = Tk()
         self.__root.geometry(f"{self._width}x{self._height}")
 
-        # Define frames
-        control_frame = Frame(self.__root)
-        control_frame.grid(row=0, column=0, sticky="ew", padx=5, pady=10)
+        self.__canvas = CanvasFrame(self.__root)
 
-        canvas_frame = Frame(self.__root)
-        canvas_frame.grid(row=1, column=0, sticky="nsew")
+        self.__mainframe = MainFrame(self.__root, self.__canvas)
+
+        # Define frames
+        # control_frame = Frame(self.__root)
+        # control_frame.grid(row=0, column=0, sticky="ew", padx=5, pady=10)
+
+        # canvas_frame = Frame(self.__root)
+        # canvas_frame.grid(row=1, column=0, sticky="nsew")
 
         # make canvas frame expandable
         self.__root.grid_rowconfigure(1, weight=1)
         self.__root.grid_columnconfigure(0, weight=1)
 
         # initialize widgets with frames
-        self.__widgets = ButtonWidgets(control_frame)
-        self.__canvas = CanvasFrame(canvas_frame, self)
+        # self.__btn_widgets = ButtonWidgets(control_frame)
+        # self.__entry_widgets = EntryWidgets(control_frame)
+        # self.__canvas = CanvasFrame(canvas_frame)
 
         self.__root.title("Maze Solver")
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
-        self.__canvas.pack(fill=BOTH, expand=True)
+        # self.__canvas.pack(fill=BOTH, expand=True)
 
     @property
     def root(self) -> Tk:
@@ -156,6 +161,28 @@ class Window:
             pass
 
 
+class MainFrame(Frame):
+    """
+    Data class that holds both CanvasFrame and Widgets. By sharing a parent, each Frame will manage their own
+    layout without conflicts
+
+    Attributes
+    -----
+    - widgets : EntryWidget
+    - canvas : CanvasFrame
+    - buttons : ButtonWidgets
+    """
+
+    def __init__(self, root: Tk, canvas_frame: "CanvasFrame"):
+        super().__init__(root)
+        self._canvas = canvas_frame
+        # self.canvas = CanvasFrame(self)
+        self.widgets = EntryWidgets(self._canvas)
+
+        # self.canvas.pack(fill=BOTH, expand=True)
+        self.widgets.pack(fill=X)
+
+
 class CanvasFrame(Frame):
     """
     Behvaior class that handles interactions between maze and canvas
@@ -165,8 +192,8 @@ class CanvasFrame(Frame):
     - draw_line(line : Line, fille_color ?: str) -> None : Draws line to canvas
     """
 
-    def __init__(self, parent: Frame, window: Window):
-        super().__init__(parent)
+    def __init__(self, window: Tk):
+        super().__init__(window)
         self.__window = window
         self.__canvas = Canvas(
             self,
@@ -187,17 +214,25 @@ class CanvasFrame(Frame):
         """
         Method that updates Tkinter root to draw to it
         """
-        if self.__window.is_valid_window():
-            self.__window.root.update_idletasks()
-            self.__window.root.update()
+        if self.is_valid_window():
+            self.__window.update_idletasks()
+            self.__window.update()
+
+    def is_valid_window(self) -> bool:
+        """Method that checks if window is still open before drawing to it"""
+        try:
+            return self.__window.winfo_exists()
+        except TclError:
+            pass
 
 
 class ButtonWidgets:
     """Class that contains all buttons in the maze solver"""
 
-    def __init__(self, parent: Frame):
+    def __init__(self, parent: Frame, canvas_frame: "CanvasFrame"):
         self._container = None
         self._parent = parent
+        self._canvas = canvas_frame
         # Grid placement for buttons
         self.reset_button = Button(
             parent, text="Reset", command=self.reset, cursor="exchange"
@@ -209,6 +244,18 @@ class ButtonWidgets:
         )
         self.solve_button.grid(row=2, column=0, padx=5, sticky="nsew")
 
+    def solve(self):
+        """Method that solves the maze"""
+        print(self._container)
+
+    def reset(self):
+        """Method that resets the maze"""
+        print("Resetting...")
+
+
+class EntryWidgets:
+    def __init__(self, parent):
+        self.parent = parent
         # User input
         self.draw_button = Button(
             parent, text="Draw", command=self.draw, cursor="arrow"
@@ -218,7 +265,7 @@ class ButtonWidgets:
         )
 
         # Add entries
-        self.row_input = StringVar()
+        self.row_input = IntVar(value=10)
         row_label = Label(parent, text="Rows", font=("Helvetica", 14))
         row_label.grid(row=0, column=1, sticky="ew")
         self.rows_entry = Entry(
@@ -233,7 +280,7 @@ class ButtonWidgets:
         )
         self.rows_entry.grid(row=1, column=1, ipadx=5, ipady=5, sticky="ew")
 
-        self.col_input = StringVar()
+        self.col_input = IntVar(value=10)
         col_label = Label(parent, text="Columns", font=("Helvetica", 14))
         col_label.grid(row=0, column=2, sticky="ew")
         self.columns_entry = Entry(
@@ -259,18 +306,14 @@ class ButtonWidgets:
             container = initialize_maze(cols, rows)
             print(container)
             self._container = container
+            render_maze(container, self.parent)
+            # self.parent.update_idletasks()
+            # self.parent.update()
+
         except ValueError as e:
             showerror(title="Error", message=e)
 
-    def solve(self):
-        """Method that solves the maze"""
-        print(self._container)
 
-    def reset(self):
-        """Method that resets the maze"""
-        print("Resetting...")
-
-
-if __name__ == "__main__":
-    window = Window(1000, 600)
-    window.start()
+# if __name__ == "__main__":
+#     window = Window(1000, 600)
+#     window.start()

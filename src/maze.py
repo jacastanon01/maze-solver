@@ -333,7 +333,6 @@ class MazeDrawer:
         self._break_walls_r(0, 0)
         self._maze.reset_visited_cells()
 
-        
 
     # def center_maze(self) -> None:
     #     """Calculates necessary space to render maze at the center of its canvas"""

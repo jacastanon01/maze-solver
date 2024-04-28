@@ -26,9 +26,9 @@ def initialize_maze(cols_entry: int, rows_entry: int) -> Tuple["Maze", "Window"]
     cell_cols = 20 if cols < 25 else 10
     cell_rows = 20 if rows < 25 else 10
     my_maze = Maze(padding_x, padding_y, cols, rows, cell_cols, cell_rows)
-    window = Window(width, height)
-    render_maze(my_maze, window)
-    return my_maze, window
+    # window = Window(width, height)
+    # render_maze(my_maze, window)
+    return my_maze
 
 
 def calculate_window_sizes(cols: int, rows: int) -> Tuple[int, int, int, int, int, int]:
@@ -82,7 +82,7 @@ def render_maze(maze: "Maze", window: "Window") -> None:
 
     from src.maze import MazeDrawer
 
-    drawer = MazeDrawer(maze, window)
+    drawer = MazeDrawer(maze, window.canvas)
     window.start()
     window.redraw()
 
