@@ -29,8 +29,8 @@ class Cell:
     """
 
     # Dunder methods
-    def __init__(self, window: Window):
-        self._window = window
+    def __init__(self, window: CanvasFrame):
+        self._canvas = window
         self.has_left_wall = True
         self.has_top_wall = True
         self.has_right_wall = True
@@ -113,7 +113,7 @@ class Cell:
             point1 = wall_directions[direction][:2]
             point2 = wall_directions[direction][2:]
             wall_line = Line(Point(*point1), Point(*point2))
-            self._window.canvas.draw_line(wall_line, fill_color)
+            self._canvas.draw_line(wall_line, fill_color)
 
     def draw_move(self, to_cell: "Cell", undo=False) -> None:
         """
@@ -141,7 +141,7 @@ class Cell:
             Point(center_x_source, center_y_source),
             Point(center_x_destination, center_y_destination),
         )
-        self._window.canvas.draw_line(line, fill_color=line_color)
+        self._canvas.draw_line(line, fill_color=line_color)
 
 
 class Maze:
@@ -195,9 +195,9 @@ class Maze:
         self._cell_height = cell_height
         self._cells = []
         if seed:
-            self._seed = random.seed(4)
+            self._seed = random.seed(cell_width)
 
-    def __format__(self, format_spec):
+    def __format__(self, format_spec: str) -> str:
         match format_spec:
             case "short":
                 return f"{self.num_cols}x{self.num_rows}"
@@ -206,7 +206,7 @@ class Maze:
             case _:
                 return self.__repr__()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Maze({self.x_start}, {self.x_start}, {self.num_rows}, {self.num_cols}, {self.cell_width}, {self.cell_height})"
 
     @property
@@ -215,9 +215,6 @@ class Maze:
 
     @x_start.setter
     def x_start(self, new_x) -> None:
-        print(f"\n************\n{new_x}")
-        # if new_x < 0 or new_x > self.num_cols:
-        #     raise ValueError("x_start must be within the maze's columns.")
         self._x_start = new_x
 
     @property
@@ -226,8 +223,6 @@ class Maze:
 
     @y_start.setter
     def y_start(self, new_y: int) -> None:
-        # if new_y < 0 or new_y > self.num_rows:
-        #     raise ValueError("y_start must be within the maze's rows")
         self._y_start = new_y
 
     @property
@@ -326,9 +321,9 @@ class MazeDrawer:
     - break_walls_r(col : int, row : int)  : Recursive backtracking algorithm to create maze   
     """
 
-    def __init__(self, maze: Maze, window: Window):
+    def __init__(self, maze: Maze, window: CanvasFrame):
         self._maze = maze
-        self._window = window
+        self._canvas = window
         # self.center_maze()
         self._init_cells()
         # self._window.root.after(10, self.center_maze)
@@ -359,7 +354,7 @@ class MazeDrawer:
     def _init_cells(self) -> None:
         """Initializes the matrix of a maze"""
         new_cells = [
-            [Cell(self._window) for _ in range(self._maze.num_rows)] 
+            [Cell(self._canvas) for _ in range(self._maze.num_rows)] 
             for _ in range(self._maze.num_cols)
         ]
         self._maze.cells = new_cells
@@ -397,11 +392,11 @@ class MazeDrawer:
             Defaults to False
             Used to determine time to sleep while redrawing
         """
-        self._window.canvas.redraw()
+        self._canvas.redraw()
         if path:
             time.sleep(0.1)
         else:
-            time.sleep(0.001)
+            pass
 
     def _create_entrance_and_exit(self) -> None:
         """Creates entrance and exit to maze by removing the top wall of the first cell and

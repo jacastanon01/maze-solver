@@ -78,7 +78,7 @@ def render_maze(maze: Maze, window: Window) -> None:
     - cols (int): _description_
     - rows (int): _description_
     """
-    drawer = MazeDrawer(maze, window)
+    drawer = MazeDrawer(maze, window.canvas)
     solve_maze(maze, drawer)
     window.start()
     window.wait_for_close()
