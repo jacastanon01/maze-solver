@@ -79,11 +79,16 @@ class Window(Frame):
         """
         Checks if canvas is idle before toggling active state of buttons
         """
+        ############### TODO
+        # TODO Refactor how button state is handled. Add more checks or redo state
+        ############## TODO
         btn = self.buttons.get(value)
         if btn is None:
             raise ValueError("Invalid button")
         # if state is explicitly defined, set button to it
         if state is not None:
+            if state:
+                print(value, state, "!!!!!")
             btn["state"] = NORMAL if state else DISABLED
         else:
             # Only togglable when canvas is idle
@@ -149,6 +154,14 @@ class Window(Frame):
         except TclError:
             pass
 
+    def redraw(self) -> None:
+        """
+        Method that updates Tkinter root to draw to it
+        """
+        if self.state != State.IDLE:
+            self.__root.update_idletasks()
+            self.__root.update()
+
 
 class CanvasFrame(Frame):
     """
@@ -198,20 +211,23 @@ class CanvasFrame(Frame):
         self.create_canvas()
         self._bind_return(self.draw_maze)
 
+    @property
+    def window(self):
+        return self.__window
+
     def create_canvas(self):
         self.canvas = Canvas(self, bg="white")
         self.canvas.pack(fill=BOTH, expand=True)
 
     def draw_line(self, line, fill_color="black"):
         """Draws line to canvas"""
-        if self.__window.state in [State.DRAWING, State.SOLVING]:
+        if self.window.state in [State.DRAWING, State.SOLVING]:
             point1, point2 = line.get_points()
             x1, y1 = point1.x, point1.y
             x2, y2 = point2.x, point2.y
             self.canvas.create_line(x1, y1, x2, y2, fill=fill_color, width=2)
 
     def _clear_canvas(self):
-        self.__window.set_state(State.IDLE)
         self.canvas.delete("all")
 
     def _calculate_window_sizes(self) -> Tuple[int, int, int, int, int, int]:
@@ -219,8 +235,8 @@ class CanvasFrame(Frame):
         Takes user input of columns and rows to calculate the size of a window based on those values.
         Calls draw_maze with input values to draw the maze
         """
-        self.rows_entry = int(self.__window.row_input.get())
-        self.cols_entry = int(self.__window.col_input.get())
+        self.rows_entry = int(self.window.row_input.get())
+        self.cols_entry = int(self.window.col_input.get())
         if (
             self.cols_entry < 0
             or self.cols_entry > 50
@@ -262,9 +278,12 @@ class CanvasFrame(Frame):
                 self._calculate_window_sizes()
             )
             self.reset_maze()
-            if self.__window.buttons["solve"]["state"] == NORMAL:
-                self.__window.toggle_button_state("solve")
-            self.__window.set_state(State.DRAWING)
+            if self.window.state != State.IDLE:
+                self._clear_canvas()
+
+            if self.window.buttons["solve"]["state"] == NORMAL:
+                self.window.toggle_button_state("solve", False)
+            self.window.set_state(State.DRAWING)
 
             cell_cols = 20 if num_cols < 25 else 10
             cell_rows = 20 if num_rows < 25 else 10
@@ -278,40 +297,39 @@ class CanvasFrame(Frame):
                 cell_height=cell_rows,
             )
             self.drawer = MazeDrawer(self.maze, self)
+
+            # If state has changed during execution, terminate function call
+            if self.window.state != State.DRAWING:
+                return
             # enable solve button
-            self.__window.set_state(State.IDLE)
-            self.__window.toggle_button_state("solve")
+            self.window.toggle_button_state("solve", True)
+            self.window.set_state(State.IDLE)
             self._bind_return(self.solve_maze)
 
         except ValueError as e:
             showerror("Error", message=e)
 
     def solve_maze(self, event=None):
-        if self.__window.state == State.IDLE:
-            self.__window.set_state(State.SOLVING)
-            if self.drawer and self.maze:
-                self.__window.toggle_button_state("draw")
-                solver = MazeSolver(self.maze, self.drawer)
-                solver.solve()
-                self._bind_return(self.draw_maze)
-            else:
-                showerror(title="Error", message="Must draw maze before solving it")
-            self.__window.set_state(State.IDLE)
-            self.__window.toggle_button_state("draw")
+        if self.window.state != State.IDLE:
+            self._clear_canvas()
+        self.window.set_state(State.SOLVING)
+        if self.drawer and self.maze:
+            self.window.toggle_button_state("draw", False)
+            solver = MazeSolver(self.maze, self.drawer)
+            solver.solve()
+            self._bind_return(self.draw_maze)
+        else:
+            showerror(title="Error", message="Must draw maze before solving it")
+        self.window.set_state(State.IDLE)
+        self.window.toggle_button_state("draw", True)
 
     def reset_maze(self):
+        self.maze = None
+        self.drawer = None
+        self.window.set_state(State.IDLE)
+        self.window.toggle_button_state("solve", False)
+        self.window.toggle_button_state("draw", True)
         self._clear_canvas()
-        self.__window.set_state(State.IDLE)
-        self.__window.toggle_button_state("solve", False)
-        self.__window.toggle_button_state("draw", True)
-
-    def redraw(self) -> None:
-        """
-        Method that updates Tkinter root to draw to it
-        """
-        if self.__window.is_valid_window():
-            self.__root.update_idletasks()
-            self.__root.update()
 
     def _bind_return(self, func: Callable):
         """
