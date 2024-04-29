@@ -13,7 +13,7 @@ from tkinter import (
 )
 from tkinter.messagebox import showerror
 from enum import Enum
-from typing import Tuple, Callable
+from typing import Tuple, Callable, Dict, Optional
 
 
 from src.maze import Maze, MazeDrawer, MazeSolver
@@ -23,6 +23,60 @@ class State(Enum):
     IDLE = 1
     DRAWING = 2
     SOLVING = 3
+
+
+# class ButtonManager:
+#     """
+#     Class responsible for managing the state of buttons based on the canvas state.
+
+#     Attributes
+#     ----------
+#     - buttons : Dict[str, Button]
+#         A dictionary mapping button names to Button objects.
+#     - canvas_state : State
+#         The current state of the canvas.
+
+#     Methods
+#     -------
+#     - __init__(buttons: Dict[str, Button]):
+#         Initializes the ButtonManager with the provided buttons.
+#     - set_canvas_state(state: State) -> None:
+#         Sets the canvas state and updates button states accordingly.
+#     - toggle_button_state(value: str, state: Optional[bool] = None) -> None:
+#         Toggles the state of a button based on the canvas state.
+#     """
+
+#     def __init__(self, buttons: Dict[str, Button]):
+#         self.buttons = buttons
+#         self.__canvas_state = State.IDLE
+#         print(f"CREATED BTNS: {self.buttons}")
+
+#     @property
+#     def canvas_state(self) -> State:
+#         return self.__canvas_state
+
+#     # Set the canvas state and update button states accordingly
+#     def set_canvas_state(self, state: State):
+#         self.__canvas_state = state
+#         # for button in self.buttons.values():
+#         #     button["state"] = state
+
+#     # @staticmethod
+#     # def toggle_button_state(self, value: str, state: Optional[bool] = None) -> None:
+#     #     """Toggles the state of a button based on the canvas state."""
+#     #     # print(f"TOGGLE: {value}, {self.buttons}")
+#     #     btn = self.buttons.get(value)
+#     #     if btn is None:
+#     #         raise ValueError("Invalid button")
+#     #     # if state is explicitly defined, set button to it
+#     #     if state is not None:
+#     #         if state:
+#     #             print(value, state, "!!!!!")
+#     #         btn["state"] = NORMAL if state else DISABLED
+#     #     else:
+#     #         # Only togglable when canvas is idle
+#     #         if self.state == State.IDLE:
+#     #             btn["state"] = NORMAL if btn["state"] == DISABLED else DISABLED
 
 
 class Window(Frame):
@@ -62,38 +116,28 @@ class Window(Frame):
         self.__root.title("Maze Solver")
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
 
-        self.buttons = {}
         self.state = State.IDLE
+        self.buttons = {}
 
         self._create_widgets()
+        self.canvas_frame = CanvasFrame(self)
         self._create_buttons()
+        self.canvas_frame.pack(fill=BOTH, expand=True)
+
+        validate_int = self.register(lambda x: x.isdigit() or x == "")
+        self.row_input.config(validate="key", validatecommand=(validate_int, "%P"))
+        self.col_input.config(validate="key", validatecommand=(validate_int, "%P"))
+
+    def _enable_draw_button(self, event):
+        # Enable draw button if both entry widgets have int values
+        if self.row_input.get() and self.col_input.get():
+            self.toggle_button_state("draw", True)
+        else:
+            self.toggle_button_state("draw", False)
 
     @property
     def root(self):
         return self.__root
-
-    def set_state(self, state: State):
-        self.state = state
-
-    def toggle_button_state(self, value: str, state: bool = None):
-        """
-        Checks if canvas is idle before toggling active state of buttons
-        """
-        ############### TODO
-        # TODO Refactor how button state is handled. Add more checks or redo state
-        ############## TODO
-        btn = self.buttons.get(value)
-        if btn is None:
-            raise ValueError("Invalid button")
-        # if state is explicitly defined, set button to it
-        if state is not None:
-            if state:
-                print(value, state, "!!!!!")
-            btn["state"] = NORMAL if state else DISABLED
-        else:
-            # Only togglable when canvas is idle
-            if self.state == State.IDLE:
-                btn["state"] = NORMAL if btn["state"] == DISABLED else DISABLED
 
     def _create_widgets(self):
         """
@@ -113,8 +157,8 @@ class Window(Frame):
         self.col_input = Entry(self.control_frame)
         self.col_input.grid(row=1, column=1)
 
-        self.canvas_frame = CanvasFrame(self)
-        self.canvas_frame.pack(fill=BOTH, expand=True)
+        self.row_input.bind("<KeyRelease>", self._enable_draw_button)
+        self.col_input.bind("<KeyRelease>", self._enable_draw_button)
 
     def _create_buttons(self):
         actions = ["draw", "solve", "reset"]
@@ -128,8 +172,8 @@ class Window(Frame):
 
             self.buttons[action].grid(row=2, column=i)
 
-        if self.buttons.get("solve"):
-            self.buttons["solve"]["state"] = DISABLED
+        self.toggle_button_state("draw", False)
+        self.toggle_button_state("solve", False)
 
     def start(self) -> None:
         """Starts the Tkinter window"""
@@ -162,6 +206,29 @@ class Window(Frame):
             self.__root.update_idletasks()
             self.__root.update()
 
+    def set_state(self, state: State):
+        self.state = state
+
+    def toggle_button_state(self, value: str, state: bool = None):
+        """
+        Checks if canvas is idle before toggling active state of buttons
+        """
+        ############### TODO
+        # TODO Refactor how button state is handled. Add more checks or redo state
+        ############## TODO
+        btn = self.buttons.get(value)
+        if btn is None:
+            raise ValueError("Invalid button")
+        # if state is explicitly defined, set button to it
+        if state is not None:
+            if state:
+                print(value, state, "!!!!!")
+            btn["state"] = NORMAL if state else DISABLED
+        else:
+            # Only togglable when canvas is idle
+            if self.state == State.IDLE:
+                btn["state"] = NORMAL if btn["state"] == DISABLED else DISABLED
+
 
 class CanvasFrame(Frame):
     """
@@ -171,6 +238,9 @@ class CanvasFrame(Frame):
     ----------
     - window : Window
         The parent window instance.
+
+    - buttons : Dict[str, Button]
+        Dictionary of buttons associated with the canvas.
 
     - canvas : Canvas
         The Tkinter canvas instance.
@@ -208,6 +278,7 @@ class CanvasFrame(Frame):
 
         self.maze = None
         self.canvas = None
+
         self.create_canvas()
         self._bind_return(self.draw_maze)
 
@@ -218,6 +289,9 @@ class CanvasFrame(Frame):
     def create_canvas(self):
         self.canvas = Canvas(self, bg="white")
         self.canvas.pack(fill=BOTH, expand=True)
+
+    # def set_button_manager(self, button_manager: ButtonManager):
+    #     self.button_manager = button_manager
 
     def draw_line(self, line, fill_color="black"):
         """Draws line to canvas"""
@@ -274,6 +348,7 @@ class CanvasFrame(Frame):
 
     def draw_maze(self, event=None):
         try:
+            # self.button_manager.toggle_button_state()
             width, height, padding_x, padding_y, num_cols, num_rows = (
                 self._calculate_window_sizes()
             )
@@ -281,8 +356,8 @@ class CanvasFrame(Frame):
             if self.window.state != State.IDLE:
                 self._clear_canvas()
 
-            if self.window.buttons["solve"]["state"] == NORMAL:
-                self.window.toggle_button_state("solve", False)
+            self.window.toggle_button_state("draw", False)
+            self.window.toggle_button_state("solve", False)
             self.window.set_state(State.DRAWING)
 
             cell_cols = 20 if num_cols < 25 else 10
@@ -297,10 +372,11 @@ class CanvasFrame(Frame):
                 cell_height=cell_rows,
             )
             self.drawer = MazeDrawer(self.maze, self)
-
+            print(repr(self.drawer._maze))
+            print(self.__window.state)
             # If state has changed during execution, terminate function call
-            if self.window.state != State.DRAWING:
-                return
+            # if self.window.state != State.DRAWING:
+            #     return
             # enable solve button
             self.window.toggle_button_state("solve", True)
             self.window.set_state(State.IDLE)
@@ -315,6 +391,7 @@ class CanvasFrame(Frame):
         self.window.set_state(State.SOLVING)
         if self.drawer and self.maze:
             self.window.toggle_button_state("draw", False)
+            self.window.toggle_button_state("solve", False)
             solver = MazeSolver(self.maze, self.drawer)
             solver.solve()
             self._bind_return(self.draw_maze)
