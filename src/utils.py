@@ -42,7 +42,7 @@ def calculate_window_sizes(cols: int, rows: int) -> Tuple[int, int, int, int, in
         raise ValueError("Maze must have between 2 and 50 rows")
 
     print(f"Generating a {cols} by {rows} maze...")
-    desired_padding = 50
+    desired_padding = 10
     cell_cols = 20 if cols < 25 else 10
     cell_rows = 20 if rows < 25 else 10
     window_size = 800
@@ -57,8 +57,8 @@ def calculate_window_sizes(cols: int, rows: int) -> Tuple[int, int, int, int, in
         desired_padding * 2
     )  # Maze size plus padding for top and bottom
 
-    padding_x = (window_size - maze_width) // 2
-    padding_y = (window_size - maze_height) // 2
+    padding_x = (window_size - maze_width) / 2
+    padding_y = (window_size - maze_height) / 2
 
     return (
         window_size,
