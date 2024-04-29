@@ -214,7 +214,7 @@ class CanvasFrame(Frame):
         self.__window.set_state(State.IDLE)
         self.canvas.delete("all")
 
-    def calculate_window_sizes(self) -> Tuple[int, int, int, int, int, int]:
+    def _calculate_window_sizes(self) -> Tuple[int, int, int, int, int, int]:
         """
         Takes user input of columns and rows to calculate the size of a window based on those values.
         Calls draw_maze with input values to draw the maze
@@ -259,7 +259,7 @@ class CanvasFrame(Frame):
     def draw_maze(self, event=None):
         try:
             width, height, padding_x, padding_y, num_cols, num_rows = (
-                self.calculate_window_sizes()
+                self._calculate_window_sizes()
             )
             self.reset_maze()
             if self.__window.buttons["solve"]["state"] == NORMAL:
