@@ -192,11 +192,11 @@ class CanvasFrame(Frame):
         super().__init__(window.root)
         self.__window = window
         self.__root = self.__window.root
-        self._bind_return(self.draw_maze)
-        self.is_drawing = False
+
         self.maze = None
         self.canvas = None
         self.create_canvas()
+        self._bind_return(self.draw_maze)
 
     def create_canvas(self):
         self.canvas = Canvas(self, bg="white")
