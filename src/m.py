@@ -37,26 +37,19 @@ class Window(Frame):
     -------
     - set_state(state: State) -> None:
         Sets the state of the window.
-
     - toggle_button_state(value: str, state: Optional[bool] = None) -> None:
         Toggles the state of a button based on the current state of the canvas.
         If `state` is provided, sets the button state accordingly.
-
     - _create_widgets() -> None:
         Defines the frame for widget components.
-
     - _create_buttons() -> None:
         Creates buttons for drawing, solving, and resetting the maze.
-
     - start() -> None:
         Starts the Tkinter window main loop.
-
     - close() -> None:
         Terminates the window.
-
     - is_valid_window() -> bool:
         Checks if the window is still open.
-
     - wait_for_close() -> None:
         Waits for the window to close before redrawing.
     """
@@ -178,25 +171,18 @@ class CanvasFrame(Frame):
     -------
     - draw_line(line, fill_color="black") -> None:
         Draws a line on the canvas.
-
     - clear_canvas() -> None:
         Clears the canvas.
-
     - calculate_window_sizes() -> Tuple[int, int, int, int, int, int]:
         Calculates window sizes based on user input.
-
     - draw_maze(event=None) -> None:
         Draws the maze based on user input.
-
     - solve_maze(event=None) -> None:
         Solves the maze.
-
     - reset_maze() -> None:
         Resets the maze.
-
     - redraw() -> None:
         Updates the Tkinter root to draw to it.
-
     - _bind_return(func: Callable) -> None:
         Binds the return key to a function.
     """

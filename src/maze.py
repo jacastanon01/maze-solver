@@ -23,9 +23,12 @@ class Cell:
 
     Methods
     -----
-    - draw(x1 : int, y1 : int, x2 : int, y2 : int)  : Draws cell to screen
-    - draw_move(to_cell : Cell, undo ?: bool)  : Draws line thru cells
-    - get_wall_directions -> dict[{str: tuple(int)}] : Retrieves the coordinates for a given wall direction
+    - draw(x1 : int, y1 : int, x2 : int, y2 : int)
+         Draws cell to screen
+    - draw_move(to_cell : Cell, undo ?: bool)   
+         Draws line thru cells
+    - get_wall_directions -> dict[{str: tuple(int)}] : 
+        Retrieves the coordinates for a given wall direction
     """
 
     # Dunder methods
@@ -150,23 +153,32 @@ class Maze:
 
     Attributes
     -----
-    - x_start : int : Represents how many pixels from the left the maze runner should start
-    - y_start : int : Represents how many pixels from the top the maze runner should start
-    - num_cols : int : Total cell columns
-    - num_rows : int : Total cell rows
-    - cell_width : int : Cell width
-    - cell_height : int : Cell height
-    - cells : list[list[Cell]] : List of cells in the maze
+    - x_start : int 
+        Represents how many pixels from the left the maze runner should start
+    - y_start : int 
+        Represents how many pixels from the top the maze runner should start
+    - num_cols : int 
+        Total cell columns
+    - num_rows : int 
+        Total cell rows
+    - cell_width : int 
+        Cell width
+    - cell_height : int 
+        Cell height
+    - cells : list[list[Cell]] 
+        List of cells in the maze
     - seed : int : Random seed
 
     Methods
     -----
     - get_neighbor_coords(col: int, row: int, direction: str) -> Tuple[Tuple[int, int], str]
         Returns the coordinates of the neighbor cell and the direction of the wall that connects them  
-    - get_cell(col: int, row: int) -> Cell : Returns the cell at the specified column and row
+    - get_cell(col: int, row: int) -> Cell 
+        Returns the cell at the specified column and row
     - get_neighbor_coords(col: int, row: int, direction: str) -> Tuple[Tuple[int, int], str]:
         Returns all the neboring cells from a cell in a given position
-    - reset_visited_cells -> None : Resets all cell's visited attribute to False
+    - reset_visited_cells -> None 
+        Resets all cell's visited attribute to False
     """
 
     def __init__(
@@ -312,13 +324,19 @@ class MazeDrawer:
 
     Methods:
     ----
-    - init_cells  : Initializes the matrix with Cell objects
-    - create_cells  : Initializes the matrix of cells and draws them to screen
-    - draw_cell(i: int, j: int) : Draws a cell to screen at specified row/column position
-    - animate : Animates maze by drawing cells one at a time and allows us to visulize our algorithm
-    - draw_entrance_and_exit  : Draws entrance and exit to maze by removing the top wall of the first cell and
-    the bottom wall of the last cell
-    - break_walls_r(col : int, row : int)  : Recursive backtracking algorithm to create maze   
+    - init_cells  
+        Initializes the matrix with Cell objects
+    - create_cells  
+        Initializes the matrix of cells and draws them to screen
+    - draw_cell(i: int, j: int) 
+        Draws a cell to screen at specified row/column position
+    - animate 
+        Animates maze by drawing cells one at a time and allows us to visulize our algorithm
+    - draw_entrance_and_exit  
+        Draws entrance and exit to maze by removing the top wall of the first cell and
+        the bottom wall of the last cell
+    - break_walls_r(col : int, row : int)  
+        Recursive backtracking algorithm to create maze   
     """
 
     def __init__(self, maze: Maze, window: CanvasFrame):
@@ -446,6 +464,20 @@ class MazeDrawer:
 class MazeSolver:
     """
     Contains solvers for mazes.
+
+    Attributes
+    ----------
+    - maze : Maze
+        The maze object.
+    - drawer : MazeDrawer
+        The maze drawer object.
+
+    Methods
+    -------
+    - solve() -> bool:
+        Solves the maze using depth-first traversal to find the exit path.
+    - _dfs_r(col: int, row: int) -> bool:
+        Performs depth-first solution to find the end of the maze.
     """
 
     def __init__(self, maze: Maze, md: MazeDrawer):
