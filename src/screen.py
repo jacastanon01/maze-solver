@@ -172,9 +172,9 @@ class CanvasFrame(Frame):
     -------
     - draw_line(line, fill_color="black") -> None:
         Draws a line on the canvas.
-    - clear_canvas() -> None:
+    - _clear_canvas() -> None:
         Clears the canvas.
-    - calculate_window_sizes() -> Tuple[int, int, int, int, int, int]:
+    - _calculate_window_sizes() -> Tuple[int, int, int, int, int, int]:
         Calculates window sizes based on user input.
     - draw_maze(event=None) -> None:
         Draws the maze based on user input.
@@ -210,7 +210,7 @@ class CanvasFrame(Frame):
             x2, y2 = point2.x, point2.y
             self.canvas.create_line(x1, y1, x2, y2, fill=fill_color, width=2)
 
-    def clear_canvas(self):
+    def _clear_canvas(self):
         self.__window.set_state(State.IDLE)
         self.canvas.delete("all")
 
@@ -300,7 +300,7 @@ class CanvasFrame(Frame):
             self.__window.toggle_button_state("draw")
 
     def reset_maze(self):
-        self.clear_canvas()
+        self._clear_canvas()
         self.__window.set_state(State.IDLE)
         self.__window.toggle_button_state("solve", False)
         self.__window.toggle_button_state("draw", True)
