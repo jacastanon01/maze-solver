@@ -215,21 +215,6 @@ class MazeDrawer:
         self._break_walls_r(0, 0)
         self._maze.reset_visited_cells()
 
-    # def center_maze(self) -> None:
-    #     """Calculates necessary space to render maze at the center of its canvas"""
-    #     canvas_width = self._window.canvas.winfo_width()
-    #     canvas_height = self._window.canvas.winfo_height()
-
-    #     print(canvas_height, canvas_width, end="\n!!!!!!!!!!")
-    #     maze_width = self._maze.num_cols * 10
-    #     maze_height = self._maze.num_rows * 10
-
-    #     x_start = (canvas_width - maze_width) / 2
-    #     y_start = (canvas_height - maze_height) / 2
-
-    #     self._maze.x_start = x_start
-    #     self._maze.y_start = y_start
-
     def _init_cells(self) -> None:
         """Initializes the matrix of a maze"""
         new_cells = [
@@ -300,25 +285,21 @@ class MazeDrawer:
         current_cell: Cell = self._maze.get_cell(col, row)
         current_cell.visited = True
 
-        # Directions to move in the maze
         directions = ["top", "right", "bottom", "left"]
-        random.shuffle(directions)  # Shuffle directions to create a random maze
+        random.shuffle(directions)
 
         for direction in directions:
-            # Get the neighbor cell based on the direction
             neighbor_coords, opposite_direction = self._maze.get_neighbor_coords(
                 col, row, direction
             )
             neighbor_col, neighbor_row = neighbor_coords
 
-            # Boundary check
             if (
                 0 <= neighbor_row < self._maze.num_rows
                 and 0 <= neighbor_col < self._maze.num_cols
             ):
                 neighbor = self._maze.get_cell(neighbor_col, neighbor_row)
 
-                # If the neighbor hasn't been visited, break the walls and recurse
                 if neighbor and not neighbor.visited:
                     # Break the wall between current cell and neighbor
                     setattr(current_cell, f"has_{direction}_wall", False)
@@ -367,8 +348,6 @@ class MazeSolver:
         Performs depth-first solution to find end of maze
         """
 
-        # if self._maze.num_cols - 1 == col and self._maze.num_rows - 1 == row:
-        #     return True
         current_cell = self._maze.get_cell(col, row)
         current_cell.visited = True
 

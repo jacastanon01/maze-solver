@@ -25,105 +25,57 @@ class State(Enum):
     SOLVING = 3
 
 
-# class ButtonManager:
-#     """
-#     Class responsible for managing the state of buttons based on the canvas state.
-
-#     Attributes
-#     ----------
-#     - buttons : Dict[str, Button]
-#         A dictionary mapping button names to Button objects.
-#     - canvas_state : State
-#         The current state of the canvas.
-
-#     Methods
-#     -------
-#     - __init__(buttons: Dict[str, Button]):
-#         Initializes the ButtonManager with the provided buttons.
-#     - set_canvas_state(state: State) -> None:
-#         Sets the canvas state and updates button states accordingly.
-#     - toggle_button_state(value: str, state: Optional[bool] = None) -> None:
-#         Toggles the state of a button based on the canvas state.
-#     """
-
-#     def __init__(self, buttons: Dict[str, Button]):
-#         self.buttons = buttons
-#         self.__canvas_state = State.IDLE
-#         print(f"CREATED BTNS: {self.buttons}")
-
-#     @property
-#     def canvas_state(self) -> State:
-#         return self.__canvas_state
-
-#     # Set the canvas state and update button states accordingly
-#     def set_canvas_state(self, state: State):
-#         self.__canvas_state = state
-#         # for button in self.buttons.values():
-#         #     button["state"] = state
-
-#     # @staticmethod
-#     # def toggle_button_state(self, value: str, state: Optional[bool] = None) -> None:
-#     #     """Toggles the state of a button based on the canvas state."""
-#     #     # print(f"TOGGLE: {value}, {self.buttons}")
-#     #     btn = self.buttons.get(value)
-#     #     if btn is None:
-#     #         raise ValueError("Invalid button")
-#     #     # if state is explicitly defined, set button to it
-#     #     if state is not None:
-#     #         if state:
-#     #             print(value, state, "!!!!!")
-#     #         btn["state"] = NORMAL if state else DISABLED
-#     #     else:
-#     #         # Only togglable when canvas is idle
-#     #         if self.state == State.IDLE:
-#     #             btn["state"] = NORMAL if btn["state"] == DISABLED else DISABLED
-
-
 class Window(Frame):
     """
-    Class that containig data of Tkinter window
+    Class containing data of Tkinter window
 
-    Attributes
-    ----------
-    - root : Tk
-        The Tkinter root instance.
+        Attributes
+        ----------
+        - root : Tk
+            The Tkinter root instance.
+        - control_frame : Frame
 
-    Methods
-    -------
-    - set_state(state: State) -> None:
-        Sets the state of the window.
-    - toggle_button_state(value: str, state: Optional[bool] = None) -> None:
-        Toggles the state of a button based on the current state of the canvas.
-        If `state` is provided, sets the button state accordingly.
-    - _create_widgets() -> None:
-        Defines the frame for widget components.
-    - _create_buttons() -> None:
-        Creates buttons for drawing, solving, and resetting the maze.
-    - start() -> None:
-        Starts the Tkinter window main loop.
-    - close() -> None:
-        Terminates the window.
-    - is_valid_window() -> bool:
-        Checks if the window is still open.
-    - wait_for_close() -> None:
-        Waits for the window to close before redrawing.
+
+        Methods
+        -------
+        - set_state(state: State) -> None:
+            Sets the state of the window.
+        - toggle_button_state(value: str, state: Optional[bool] = None) -> None:
+            Toggles the state of a button based on the current state of the canvas.
+            If `state` is provided, sets the button state accordingly.
+        - _create_widgets() -> None:
+            Defines the frame for widget components.
+        - _create_buttons() -> None:
+            Creates buttons for drawing, solving, and resetting the maze.
+        - start() -> None:
+            Starts the Tkinter window main loop.
+        - close() -> None:
+            Terminates the window.
+        - is_valid_window() -> bool:
+            Checks if the window is still open.
+        - wait_for_close() -> None:
+            Waits for the window to close before redrawing.
     """
 
     def __init__(self, master: Tk):
+        # instantiaing the Tkinter window and setting size
         super().__init__(master)
         self.__root = master
         self.__root.geometry("800x800")
         self.__root.title("Maze Solver")
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
 
+        # setting state
         self.state = State.IDLE
         self.buttons = {}
 
+        # adding widgets to GUI and creating a frame for the maze
         self._create_widgets()
         self.canvas_frame = CanvasFrame(self)
         self._create_buttons()
         self.canvas_frame.pack(fill=BOTH, expand=True)
 
+        # validates the input box contains an int or backspace or enter
         validate_int = self.register(lambda x: x.isdigit() or x == "")
         self.row_input.config(validate="key", validatecommand=(validate_int, "%P"))
         self.col_input.config(validate="key", validatecommand=(validate_int, "%P"))
@@ -213,9 +165,6 @@ class Window(Frame):
         """
         Checks if canvas is idle before toggling active state of buttons
         """
-        ############### TODO
-        # TODO Refactor how button state is handled. Add more checks or redo state
-        ############## TODO
         btn = self.buttons.get(value)
         if btn is None:
             raise ValueError("Invalid button")
@@ -274,7 +223,6 @@ class CanvasFrame(Frame):
     def __init__(self, window: Window):
         super().__init__(window.root)
         self.__window = window
-        self.__root = self.__window.root
 
         self.maze = None
         self.canvas = None
@@ -290,9 +238,6 @@ class CanvasFrame(Frame):
         self.canvas = Canvas(self, bg="white")
         self.canvas.pack(fill=BOTH, expand=True)
 
-    # def set_button_manager(self, button_manager: ButtonManager):
-    #     self.button_manager = button_manager
-
     def draw_line(self, line, fill_color="black"):
         """Draws line to canvas"""
         if self.window.state in [State.DRAWING, State.SOLVING]:
@@ -304,28 +249,39 @@ class CanvasFrame(Frame):
     def _clear_canvas(self):
         self.canvas.delete("all")
 
+    def _is_validated_input(self) -> bool:
+        try:
+            rows_entry = int(self.window.row_input.get())
+            cols_entry = int(self.window.col_input.get())
+            if cols_entry < 0 or cols_entry > 50 or rows_entry < 0 or rows_entry > 50:
+                raise ValueError("Maze must have between 2 and 50 columns")
+            return True
+        except ValueError:
+            showerror(
+                "Invalid Input",
+                "Please enter valid numeric values for rows and columns.",
+            )
+            return False
+
     def _calculate_window_sizes(self) -> Tuple[int, int, int, int, int, int]:
         """
         Takes user input of columns and rows to calculate the size of a window based on those values.
         Calls draw_maze with input values to draw the maze
         """
-        self.rows_entry = int(self.window.row_input.get())
-        self.cols_entry = int(self.window.col_input.get())
-        if (
-            self.cols_entry < 0
-            or self.cols_entry > 50
-            or self.rows_entry < 0
-            or self.rows_entry > 50
-        ):
-            raise ValueError("Maze must have between 2 and 50 columns")
-        print(f"Generating a {self.cols_entry} by {self.rows_entry} maze...")
+        if not self._is_validated_input():
+            return
+
+        rows_entry = int(self.window.row_input.get())
+        cols_entry = int(self.window.col_input.get())
+
+        print(f"Generating a {cols_entry} by {rows_entry} maze...")
         desired_padding = 10
-        cell_cols = 20 if self.cols_entry < 25 else 10
-        cell_rows = 20 if self.rows_entry < 25 else 10
+        cell_cols = 20 if cols_entry < 25 else 10
+        cell_rows = 20 if rows_entry < 25 else 10
         window_size = 800
 
-        maze_width = self.cols_entry * cell_cols
-        maze_height = self.rows_entry * cell_rows
+        maze_width = cols_entry * cell_cols
+        maze_height = rows_entry * cell_rows
 
         window_width = maze_width + (
             desired_padding * 2
@@ -342,19 +298,16 @@ class CanvasFrame(Frame):
             window_size,
             padding_x,
             padding_y,
-            self.cols_entry,
-            self.rows_entry,
+            cols_entry,
+            rows_entry,
         )
 
     def draw_maze(self, event=None):
         try:
-            # self.button_manager.toggle_button_state()
             width, height, padding_x, padding_y, num_cols, num_rows = (
                 self._calculate_window_sizes()
             )
             self.reset_maze()
-            if self.window.state != State.IDLE:
-                self._clear_canvas()
 
             self.window.toggle_button_state("draw", False)
             self.window.toggle_button_state("solve", False)
@@ -374,10 +327,7 @@ class CanvasFrame(Frame):
             self.drawer = MazeDrawer(self.maze, self)
             print(repr(self.drawer._maze))
             print(self.__window.state)
-            # If state has changed during execution, terminate function call
-            # if self.window.state != State.DRAWING:
-            #     return
-            # enable solve button
+
             self.window.toggle_button_state("solve", True)
             self.window.set_state(State.IDLE)
             self._bind_return(self.solve_maze)
@@ -412,4 +362,4 @@ class CanvasFrame(Frame):
         """
         Method that binds return key to a function
         """
-        self.__root.bind("<Return>", func)
+        self.__window.root.bind("<Return>", func)
