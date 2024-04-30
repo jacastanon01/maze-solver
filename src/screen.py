@@ -14,6 +14,7 @@ from tkinter import (
 from tkinter.messagebox import showerror
 from enum import Enum
 from typing import Tuple, Callable, Dict, Optional
+from abc import ABC, abstractmethod
 
 
 from src.maze import Maze, MazeDrawer, MazeSolver
@@ -25,7 +26,17 @@ class State(Enum):
     SOLVING = 3
 
 
-class Window(Frame):
+class StateABC(ABC):
+    @abstractmethod
+    def set_state(self, state: State):
+        pass
+
+    @abstractmethod
+    def toggle_button_state(self, value: str, state: bool = None):
+        pass
+
+
+class Window(Frame, StateABC):
     """
     Class containing data of Tkinter window
 
@@ -179,7 +190,7 @@ class Window(Frame):
                 btn["state"] = NORMAL if btn["state"] == DISABLED else DISABLED
 
 
-class CanvasFrame(Frame):
+class CanvasFrame(Frame, StateABC):
     """
     Behavior class that handles interactions between maze and canvas
 
@@ -234,13 +245,19 @@ class CanvasFrame(Frame):
     def window(self):
         return self.__window
 
+    def set_state(self, state: State):
+        self.__window.set_state(state)
+
+    def toggle_button_state(self, value: str, state: bool = None):
+        self.__window.toggle_button_state(value, state)
+
     def create_canvas(self):
         self.canvas = Canvas(self, bg="white")
         self.canvas.pack(fill=BOTH, expand=True)
 
     def draw_line(self, line, fill_color="black"):
         """Draws line to canvas"""
-        if self.window.state in [State.DRAWING, State.SOLVING]:
+        if self.__window.state in [State.DRAWING, State.SOLVING]:
             point1, point2 = line.get_points()
             x1, y1 = point1.x, point1.y
             x2, y2 = point2.x, point2.y
@@ -251,8 +268,8 @@ class CanvasFrame(Frame):
 
     def _is_validated_input(self) -> bool:
         try:
-            rows_entry = int(self.window.row_input.get())
-            cols_entry = int(self.window.col_input.get())
+            rows_entry = int(self.__window.row_input.get())
+            cols_entry = int(self.__window.col_input.get())
             if cols_entry < 0 or cols_entry > 50 or rows_entry < 0 or rows_entry > 50:
                 raise ValueError("Maze must have between 2 and 50 columns")
             return True
@@ -271,8 +288,8 @@ class CanvasFrame(Frame):
         if not self._is_validated_input():
             return
 
-        rows_entry = int(self.window.row_input.get())
-        cols_entry = int(self.window.col_input.get())
+        rows_entry = int(self.__window.row_input.get())
+        cols_entry = int(self.__window.col_input.get())
 
         print(f"Generating a {cols_entry} by {rows_entry} maze...")
         desired_padding = 10
@@ -309,9 +326,9 @@ class CanvasFrame(Frame):
             )
             self.reset_maze()
 
-            self.window.toggle_button_state("draw", False)
-            self.window.toggle_button_state("solve", False)
-            self.window.set_state(State.DRAWING)
+            self.toggle_button_state("draw", False)
+            self.toggle_button_state("solve", False)
+            self.set_state(State.DRAWING)
 
             cell_cols = 20 if num_cols < 25 else 10
             cell_rows = 20 if num_rows < 25 else 10
@@ -328,9 +345,10 @@ class CanvasFrame(Frame):
             print(repr(self.drawer._maze))
             print(self.__window.state)
 
-            self.window.toggle_button_state("solve", True)
-            self.window.set_state(State.IDLE)
-            self._bind_return(self.solve_maze)
+            if self.maze and self.drawer:
+                self.toggle_button_state("solve", True)
+                self.set_state(State.IDLE)
+                self._bind_return(self.solve_maze)
 
         except ValueError as e:
             showerror("Error", message=e)
@@ -338,25 +356,25 @@ class CanvasFrame(Frame):
     def solve_maze(self, event=None):
         if self.window.state != State.IDLE:
             self._clear_canvas()
-        self.window.set_state(State.SOLVING)
+        self.set_state(State.SOLVING)
         if self.drawer and self.maze:
-            self.window.toggle_button_state("draw", False)
-            self.window.toggle_button_state("solve", False)
+            self.toggle_button_state("draw", False)
+            self.toggle_button_state("solve", False)
             solver = MazeSolver(self.maze, self.drawer)
             solver.solve()
             self._bind_return(self.draw_maze)
         else:
             showerror(title="Error", message="Must draw maze before solving it")
-        self.window.set_state(State.IDLE)
-        self.window.toggle_button_state("draw", True)
+        self.set_state(State.IDLE)
+        self.toggle_button_state("draw", True)
 
     def reset_maze(self):
+        self._clear_canvas()
         self.maze = None
         self.drawer = None
-        self.window.set_state(State.IDLE)
-        self.window.toggle_button_state("solve", False)
-        self.window.toggle_button_state("draw", True)
-        self._clear_canvas()
+        self.set_state(State.IDLE)
+        self.toggle_button_state("solve", False)
+        self.toggle_button_state("draw", True)
 
     def _bind_return(self, func: Callable):
         """
