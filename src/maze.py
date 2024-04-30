@@ -220,9 +220,9 @@ class MazeDrawer:
             Recursive backtracking algorithm to create maze
     """
 
-    def __init__(self, maze: Maze, window: "CanvasFrame"):
+    def __init__(self, maze: Maze, frame: "CanvasFrame"):
         self._maze = maze
-        self._canvas = window
+        self._canvas = frame
         # self.center_maze()
         self._init_cells()
         # self._window.root.after(10, self.center_maze)

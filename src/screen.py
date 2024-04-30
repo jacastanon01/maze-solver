@@ -287,12 +287,16 @@ class CanvasFrame(Frame, StateABC):
         self.canvas.delete("all")
 
     def _validate_input(self) -> Tuple[int, int]:
+        """
+        Returns (cols, rows) if entry is within range and int
+        Otherwise, an exception is raised
+        """
         try:
-            rows_entry = int(self.__window.row_input.get())
             cols_entry = int(self.__window.col_input.get())
+            rows_entry = int(self.__window.row_input.get())
             if cols_entry < 0 or cols_entry > 50 or rows_entry < 0 or rows_entry > 50:
                 raise ValueError("Maze must have between 2 and 50 columns")
-            return rows_entry, cols_entry
+            return cols_entry, rows_entry
         except ValueError:
             raise ValueError("Please enter valid numeric values for rows and columns.")
 
@@ -332,7 +336,7 @@ class CanvasFrame(Frame, StateABC):
 
     def draw_maze(self, event=None):
         try:
-            rows_entry, cols_entry = self._validate_input()
+            cols_entry, rows_entry = self._validate_input()
             width, height, padding_x, padding_y, num_cols, num_rows = (
                 self._calculate_window_sizes(rows_entry, cols_entry)
             )
