@@ -266,32 +266,23 @@ class CanvasFrame(Frame, StateABC):
     def _clear_canvas(self):
         self.canvas.delete("all")
 
-    def _is_validated_input(self) -> bool:
+    def _validate_input(self) -> Tuple[int, int]:
         try:
             rows_entry = int(self.__window.row_input.get())
             cols_entry = int(self.__window.col_input.get())
             if cols_entry < 0 or cols_entry > 50 or rows_entry < 0 or rows_entry > 50:
                 raise ValueError("Maze must have between 2 and 50 columns")
-            return True
+            return rows_entry, cols_entry
         except ValueError:
-            showerror(
-                "Invalid Input",
-                "Please enter valid numeric values for rows and columns.",
-            )
-            return False
+            raise ValueError("Please enter valid numeric values for rows and columns.")
 
-    def _calculate_window_sizes(self) -> Tuple[int, int, int, int, int, int]:
+    def _calculate_window_sizes(
+        self, rows_entry: int, cols_entry: int
+    ) -> Tuple[int, int, int, int, int, int]:
         """
         Takes user input of columns and rows to calculate the size of a window based on those values.
         Calls draw_maze with input values to draw the maze
         """
-        if not self._is_validated_input():
-            return
-
-        rows_entry = int(self.__window.row_input.get())
-        cols_entry = int(self.__window.col_input.get())
-
-        print(f"Generating a {cols_entry} by {rows_entry} maze...")
         desired_padding = 10
         cell_cols = 20 if cols_entry < 25 else 10
         cell_rows = 20 if rows_entry < 25 else 10
@@ -321,8 +312,9 @@ class CanvasFrame(Frame, StateABC):
 
     def draw_maze(self, event=None):
         try:
+            rows_entry, cols_entry = self._validate_input()
             width, height, padding_x, padding_y, num_cols, num_rows = (
-                self._calculate_window_sizes()
+                self._calculate_window_sizes(rows_entry, cols_entry)
             )
             self.reset_maze()
 
@@ -342,8 +334,6 @@ class CanvasFrame(Frame, StateABC):
                 cell_height=cell_rows,
             )
             self.drawer = MazeDrawer(self.maze, self)
-            print(repr(self.drawer._maze))
-            print(self.__window.state)
 
             if self.maze and self.drawer:
                 self.toggle_button_state("solve", True)
