@@ -19,12 +19,12 @@ class Point:
 
 class Line:
     """
-    Class that represents distance between two points
+        Class that represents distance between two points
 
-    Attributes
-    -----
-    - point1 : Point
-    - point2 : Point
+        Attributes
+        -----
+        - point1 : Point
+        - point2 : Point
     """
 
     def __init__(self, point1: Point, point2: Point):
@@ -40,28 +40,34 @@ class Line:
 
 class Cell:
     """
-    A class to represent different cells in a maze
+        A class to represent different cells in a maze
 
-    Attributes
-    -----
-    - window : CanvasFrame
-        Interface for drawing onto canvas
-    - x1, y1 : int
-        Represents bottom-left point of cell. To be used to draw walls
-    - x2, y2 : int
-        Represents top-right point of cell. To be used to draw walls
-    - has_{side}_wall: bool
-        Flags to indicate which walls to draw on cell
-    - visited : list : Keeps track of which cell has already been added to path in DFS
+        Attributes
+        -----
+        - window : CanvasFrame
+            Interface for drawing onto canvas
 
-    Methods
-    -----
-    - draw(x1 : int, y1 : int, x2 : int, y2 : int)
-         Draws cell to screen
-    - draw_move(to_cell : Cell, undo ?: bool)   
-         Draws line thru cells
-    - get_wall_directions -> dict[{str: tuple(int)}] : 
-        Retrieves the coordinates for a given wall direction
+        - x1, y1 : int
+            Represents bottom-left point of cell. To be used to draw walls
+
+        - x2, y2 : int
+            Represents top-right point of cell. To be used to draw walls
+
+        - has_{side}_wall: bool
+            Flags to indicate which walls to draw on cell
+            
+        - visited : list : Keeps track of which cell has already been added to path in DFS
+
+        Methods
+        -----
+        - draw(x1 : int, y1 : int, x2 : int, y2 : int)
+            Draws cell to screen
+
+        - draw_move(to_cell : Cell, undo ?: bool)   
+            Draws line thru cells
+
+        - get_wall_directions -> dict[{str: tuple(int)}] : 
+            Retrieves the coordinates for a given wall direction
     """
 
     # Dunder methods
@@ -85,12 +91,12 @@ class Cell:
 
     def __format__(self, format_spec: str):
         """
-        Parameters
-        ------
-        format_spec : str : takes the following key mappings
-            "w": number of walls belonging to this cell
-            "v": indicates if instance has been visited during path generation
-            "c": returns cell's coordinates
+            Parameters
+            ------
+            format_spec : str : takes the following key mappings
+                "w": number of walls belonging to this cell
+                "v": indicates if instance has been visited during path generation
+                "c": returns cell's coordinates
         """
         format_spec = set(format_spec)
         if "w" in format_spec:        
@@ -119,13 +125,14 @@ class Cell:
 
     def draw_wall(self, x1: int, y1: int, x2: int, y2: int) -> None:
         """
-        Creates a line from coordinates to draw on screen
-        
+            Creates a line from coordinates to draw on screen
+            
 
-        Parameters
-        -----
-            x1, y1 : int : Represents top-left point of cell. To be used to draw walls
-            x2, y2 : int : Represents bottom-right point of cell. To be used to draw walls
+            Parameters
+            -----
+                x1, y1 : int : Represents top-left point of cell. To be used to draw walls
+                
+                x2, y2 : int : Represents bottom-right point of cell. To be used to draw walls
         """
 
         self.x1 = x1
@@ -153,12 +160,13 @@ class Cell:
 
     def draw_move(self, to_cell: "Cell", undo=False) -> None:
         """
-        Draws lines that navigates between cells
+            Draws lines that navigates between cells
 
-        Parameters
-        -----
-        to_cell : Cell : Specifies next cell to draw line toward
-        undo ?: bool : Indicates whether line is backtracking
+            Parameters
+            -----
+            to_cell : Cell : Specifies next cell to draw line toward
+
+            undo ?: bool : Indicates whether line is backtracking
         """
         if not isinstance(to_cell, Cell):
             raise ValueError("Invalid cell instance")

@@ -27,6 +27,17 @@ class State(Enum):
 
 
 class StateABC(ABC):
+    """
+    An abstract base class representing the state of the application.
+
+    Subclasses should implement methods to set and toggle the state of the application.
+
+    Attributes:
+        set_state: A method to set the state of the application.
+
+        toggle_button_state: A method to toggle the state of a button.
+    """
+
     @abstractmethod
     def set_state(self, state: State):
         pass
@@ -44,6 +55,7 @@ class Window(Frame, StateABC):
         ----------
         - root : Tk
             The Tkinter root instance.
+
         - control_frame : Frame
 
 
@@ -51,19 +63,26 @@ class Window(Frame, StateABC):
         -------
         - set_state(state: State) -> None:
             Sets the state of the window.
+
         - toggle_button_state(value: str, state: Optional[bool] = None) -> None:
             Toggles the state of a button based on the current state of the canvas.
             If `state` is provided, sets the button state accordingly.
+
         - _create_widgets() -> None:
             Defines the frame for widget components.
+
         - _create_buttons() -> None:
             Creates buttons for drawing, solving, and resetting the maze.
+
         - start() -> None:
             Starts the Tkinter window main loop.
+
         - close() -> None:
             Terminates the window.
+
         - is_valid_window() -> bool:
             Checks if the window is still open.
+
         - wait_for_close() -> None:
             Waits for the window to close before redrawing.
     """
@@ -92,7 +111,9 @@ class Window(Frame, StateABC):
         self.col_input.config(validate="key", validatecommand=(validate_int, "%P"))
 
     def _enable_draw_button(self, event):
-        # Enable draw button if both entry widgets have int values
+        """
+        Validates that both entries have values before enabling draw button
+        """
         if self.row_input.get() and self.col_input.get():
             self.toggle_button_state("draw", True)
         else:
@@ -139,11 +160,9 @@ class Window(Frame, StateABC):
         self.toggle_button_state("solve", False)
 
     def start(self) -> None:
-        """Starts the Tkinter window"""
         self.__root.mainloop()
 
     def close(self) -> None:
-        """Method to terminate window"""
         self.__root.destroy()
 
     def is_valid_window(self) -> bool:
@@ -162,9 +181,6 @@ class Window(Frame, StateABC):
             pass
 
     def redraw(self) -> None:
-        """
-        Method that updates Tkinter root to draw to it
-        """
         if self.state != State.IDLE:
             self.__root.update_idletasks()
             self.__root.update()
@@ -173,9 +189,6 @@ class Window(Frame, StateABC):
         self.state = state
 
     def toggle_button_state(self, value: str, state: bool = None):
-        """
-        Checks if canvas is idle before toggling active state of buttons
-        """
         btn = self.buttons.get(value)
         if btn is None:
             raise ValueError("Invalid button")
@@ -215,18 +228,25 @@ class CanvasFrame(Frame, StateABC):
     -------
     - draw_line(line, fill_color="black") -> None:
         Draws a line on the canvas.
+
     - _clear_canvas() -> None:
         Clears the canvas.
+
     - _calculate_window_sizes() -> Tuple[int, int, int, int, int, int]:
         Calculates window sizes based on user input.
+
     - draw_maze(event=None) -> None:
         Draws the maze based on user input.
+
     - solve_maze(event=None) -> None:
         Solves the maze.
+
     - reset_maze() -> None:
         Resets the maze.
+
     - redraw() -> None:
         Updates the Tkinter root to draw to it.
+
     - _bind_return(func: Callable) -> None:
         Binds the return key to a function.
     """
