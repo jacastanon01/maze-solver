@@ -194,9 +194,9 @@ class MazeDrawer:
 
         Attributes
         -----
-        - maze : Maze
+        - _maze : Maze
 
-        - window : Window
+        - _canvas : CanvasFrame
 
         Methods:
         ----
