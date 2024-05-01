@@ -51,40 +51,40 @@ class Window(Frame, StateABC):
     """
     Class containing data of Tkinter window
 
-        Attributes
-        ----------
-        - root : Tk
-            The Tkinter root instance.
+    Attributes
+    ----------
+    - root : Tk
+        The Tkinter root instance.
 
-        - control_frame : Frame
+    - control_frame : Frame
 
 
-        Methods
-        -------
-        - set_state(state: State) -> None:
-            Sets the state of the window.
+    Methods
+    -------
+    - set_state(state: State) -> None:
+        Sets the state of the window.
 
-        - toggle_button_state(value: str, state: Optional[bool] = None) -> None:
-            Toggles the state of a button based on the current state of the canvas.
-            If `state` is provided, sets the button state accordingly.
+    - toggle_button_state(value: str, state: Optional[bool] = None) -> None:
+        Toggles the state of a button based on the current state of the canvas.
+        If `state` is provided, sets the button state accordingly.
 
-        - _create_widgets() -> None:
-            Defines the frame for widget components.
+    - _create_widgets() -> None:
+        Defines the frame for widget components.
 
-        - _create_buttons() -> None:
-            Creates buttons for drawing, solving, and resetting the maze.
+    - _create_buttons() -> None:
+        Creates buttons for drawing, solving, and resetting the maze.
 
-        - start() -> None:
-            Starts the Tkinter window main loop.
+    - start() -> None:
+        Starts the Tkinter window main loop.
 
-        - close() -> None:
-            Terminates the window.
+    - close() -> None:
+        Terminates the window.
 
-        - is_valid_window() -> bool:
-            Checks if the window is still open.
+    - is_valid_window() -> bool:
+        Checks if the window is still open.
 
-        - wait_for_close() -> None:
-            Waits for the window to close before redrawing.
+    - wait_for_close() -> None:
+        Waits for the window to close before redrawing.
     """
 
     def __init__(self, master: Tk):
@@ -194,8 +194,6 @@ class Window(Frame, StateABC):
             raise ValueError("Invalid button")
         # if state is explicitly defined, set button to it
         if state is not None:
-            if state:
-                print(value, state, "!!!!!")
             btn["state"] = NORMAL if state else DISABLED
         else:
             # Only togglable when canvas is idle
@@ -294,7 +292,7 @@ class CanvasFrame(Frame, StateABC):
         try:
             cols_entry = int(self.__window.col_input.get())
             rows_entry = int(self.__window.row_input.get())
-            if cols_entry < 0 or cols_entry > 50 or rows_entry < 0 or rows_entry > 50:
+            if cols_entry < 2 or cols_entry > 50 or rows_entry < 2 or rows_entry > 50:
                 raise ValueError("Maze must have between 2 and 50 columns")
             return cols_entry, rows_entry
         except ValueError:

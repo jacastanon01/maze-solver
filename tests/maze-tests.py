@@ -1,7 +1,8 @@
 from unittest import TestCase, mock, main
 from functools import wraps
+from tkinter import Tk, Frame, Entry
 
-from src.screen import Window
+from src.screen import Window, CanvasFrame
 from src.maze import Maze, Cell, MazeDrawer
 
 
@@ -14,14 +15,10 @@ def mock_gui_with_setup(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         with mock.patch(
-            "src.screen.Window.__init__",
-            lambda *args, **kwargs: None,
-        ), mock.patch(
             "src.maze.MazeDrawer._animate", lambda *args, **kwargs: None
-        ), mock.patch(
-            "src.maze.Cell.draw_wall", lambda *args, **kwargs: None
-        ):
-            win = Window(800, 800)
+        ), mock.patch("src.maze.Cell.draw_wall", lambda *args, **kwargs: None):
+            tk = Tk()
+            win = Window(tk)
             num_cols = 12
             num_rows = 10
             m = Maze(0, 0, num_cols, num_rows, 10, 10)
@@ -34,12 +31,10 @@ def mock_gui_with_setup(func):
 
 
 class MazeTest(TestCase):
-    def test_maze_create_cells(self):
-        win = Window(800, 800)
+    @mock_gui_with_setup
+    def test_maze_create_cells(self, m):
         num_cols = 12
         num_rows = 10
-        m = Maze(0, 0, num_cols, num_rows, 10, 10)
-        m.init_cells(win)
         self.assertEqual(
             len(m._cells),
             num_cols,
@@ -48,22 +43,6 @@ class MazeTest(TestCase):
             len(m._cells[0]),
             num_rows,
         )
-
-    def test_maze_invalid_input(self):
-        # Test for invalid number of rows
-        with self.assertRaises(ValueError):
-            m = Maze(0, 0, 0, 10, 10, 10)
-        # Test for invalid number of columns
-        with self.assertRaises(ValueError):
-            m = Maze(0, 0, 10, 0, 10, 10)
-            # Test for invalud cell width or height:
-        with self.assertRaises(ValueError):
-            m = Maze(10, 10, 10, 10, 0, 10)
-            m.cell_width
-        # Test for invalud cell width or height:
-        with self.assertRaises(ValueError):
-            m = Maze(10, 10, 10, 10, 5, 0)
-            m.cell_height
 
     def test_maze_format_str(self):
         num_cols = 12
@@ -91,6 +70,24 @@ class MazeTest(TestCase):
         for col in m._cells:
             for cell in col:
                 self.assertEqual(cell.visited, False)
+
+    def test_canvas_invalid_inputs(self):
+        # Creating a Window instance
+        tk = Tk()
+        win = Window(tk)
+        win._create_widgets()
+        canvas_frame = CanvasFrame(win)
+
+        # Mocking the Entry widget
+        entry_mock = mock.Mock(spec=Entry)
+        entry_mock.get.side_effect = ["1", "51", "in"]
+
+        # Patching the Entry widget on the Window instance
+        with mock.patch.object(win, "row_input", entry_mock), mock.patch.object(
+            win, "col_input", entry_mock
+        ):
+            with self.assertRaises(ValueError):
+                win.canvas_frame._validate_input()
 
 
 if __name__ == "__main__":
