@@ -1,4 +1,4 @@
-# MazeSolver
+# Deterministic Maze Generator
 
 This is a small application that utilizes Tkinter as a GUI for a maze. The walls of the maze are randomly constructed and the maze is solved using a depth-first search, meaning you can watch as the algorithm traverses through the maze and backtrack until it finds the end.
 
@@ -16,6 +16,7 @@ This is a small application that utilizes Tkinter as a GUI for a maze. The walls
 - Python 3.12.1
 - Tkinter
 - unittest library for tests
+- random module to generate random directions
 - ABC module to define an abstract class to handle state related to the widgets
 - Type hinting and docstrings to improve readability
 
