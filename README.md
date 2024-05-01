@@ -17,7 +17,6 @@ This is a small application that utilizes Tkinter as a GUI for a maze. The walls
 - Tkinter
 - unittest library for tests
 - random module to generate random directions
-- ABC module to define an abstract class to handle state related to the widgets
 - Type hinting and docstrings to improve readability
 
 ## Learning opportunites

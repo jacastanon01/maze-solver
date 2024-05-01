@@ -14,7 +14,6 @@ from tkinter import (
 from tkinter.messagebox import showerror
 from enum import Enum
 from typing import Tuple, Callable, Dict, Optional
-from abc import ABC, abstractmethod
 
 
 from src.maze import Maze, MazeDrawer, MazeSolver
@@ -25,29 +24,7 @@ class State(Enum):
     DRAWING = 2
     SOLVING = 3
 
-
-class StateABC(ABC):
-    """
-    An abstract base class representing the state of the application.
-
-    Subclasses should implement methods to set and toggle the state of the application.
-
-    Attributes:
-        set_state: A method to set the state of the application.
-
-        toggle_button_state: A method to toggle the state of a button.
-    """
-
-    @abstractmethod
-    def set_state(self, state: State):
-        pass
-
-    @abstractmethod
-    def toggle_button_state(self, value: str, state: bool = None):
-        pass
-
-
-class Window(Frame, StateABC):
+class Window(Frame):
     """
     Class containing data of Tkinter window
 
@@ -201,7 +178,7 @@ class Window(Frame, StateABC):
                 btn["state"] = NORMAL if btn["state"] == DISABLED else DISABLED
 
 
-class CanvasFrame(Frame, StateABC):
+class CanvasFrame(Frame):
     """
     Behavior class that handles interactions between maze and canvas
 
