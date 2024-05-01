@@ -32,8 +32,6 @@ class Maze:
     - cells : list[list[Cell]]
         List of cells in the maze
 
-    - seed : int : Random seed
-
 
     Methods
     -----
@@ -58,7 +56,6 @@ class Maze:
         num_rows: int,
         cell_width: int,
         cell_height: int,
-        seed=None,
     ):
         self._x_start = x_start
         self._y_start = y_start
@@ -67,8 +64,6 @@ class Maze:
         self._cell_width = cell_width
         self._cell_height = cell_height
         self._cells = []
-        if seed:
-            self._seed = random.seed(cell_width)
 
     def __format__(self, format_spec: str) -> str:
         match format_spec:
