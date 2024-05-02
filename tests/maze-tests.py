@@ -21,8 +21,16 @@ def mock_gui_with_setup(func):
             app = App(tk)
             num_cols = 12
             num_rows = 10
-            m = Maze(0, 0, num_cols, num_rows, 10, 10)
-            MazeDrawer(m, app)
+            m = Maze(
+                x_start=0,
+                y_start=0,
+                num_cols=num_cols,
+                num_rows=num_rows,
+                cell_width=10,
+                cell_height=10,
+                cells=[],
+            )
+            MazeDrawer(m, app.canvas_frame)
             kwargs.update({"m": m})
 
             return func(*args, **kwargs)
@@ -36,11 +44,11 @@ class MazeTest(TestCase):
         num_cols = 12
         num_rows = 10
         self.assertEqual(
-            len(m._cells),
+            len(m.cells),
             num_cols,
         )
         self.assertEqual(
-            len(m._cells[0]),
+            len(m.cells[0]),
             num_rows,
         )
 
@@ -49,7 +57,15 @@ class MazeTest(TestCase):
         num_rows = 10
         cell_width = 10
         cell_height = 10
-        m = Maze(0, 0, num_cols, num_rows, cell_width, cell_height)
+        m = Maze(
+            x_start=0,
+            y_start=0,
+            num_cols=num_cols,
+            num_rows=num_rows,
+            cell_width=cell_width,
+            cell_height=cell_height,
+            cells=[],
+        )
         self.assertEqual(
             f"{m:long}",
             f"Maze with {num_rows} rows and {num_cols} columns, cell size: {cell_width}x{cell_height}",
@@ -67,7 +83,7 @@ class MazeTest(TestCase):
 
     @mock_gui_with_setup
     def test_reset_visited_cells(self, m: Maze):
-        for col in m._cells:
+        for col in m.cells:
             for cell in col:
                 self.assertEqual(cell.visited, False)
 
