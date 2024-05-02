@@ -1,22 +1,12 @@
+from dataclasses import dataclass
+
+@dataclass
 class Point:
     """Data Class that represents position on x,y grid"""
+    x: int
+    y: int
 
-    def __init__(self, x: int, y: int):
-        self._x = x
-        self._y = y
-
-    def __repr__(self):
-        return f"Point({self._x}, {self._y})"
-
-    @property
-    def x(self) -> int:
-        return self._x
-
-    @property
-    def y(self) -> int:
-        return self._y
-
-
+@dataclass
 class Line:
     """
         Class that represents distance between two points
@@ -27,12 +17,8 @@ class Line:
         - point2 : Point
     """
 
-    def __init__(self, point1: Point, point2: Point):
-        self.__point1 = point1
-        self.__point2 = point2
-
-    def __repr__(self):
-        return f"Line(\n\t{repr(self.__point1)},\n\t{repr(self.__point2)}\n\t)"
+    point1: Point
+    point2: Point
 
     def get_points(self) -> tuple[Point, Point]:
         """Returns the two connecting points of a line"""
