@@ -22,7 +22,7 @@ class Line:
 
     def get_points(self) -> tuple[Point, Point]:
         """Returns the two connecting points of a line"""
-        return self.__point1, self.__point2
+        return self.point1, self.point2
 
 class Cell:
     """

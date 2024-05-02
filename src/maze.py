@@ -72,7 +72,7 @@ class Maze:
 
     @property
     def end_cell(self) -> Cell | None:
-        if not self._cells:
+        if not self.cells:
             return None
         return self.cells[self.num_cols - 1][self.num_rows - 1]
 
