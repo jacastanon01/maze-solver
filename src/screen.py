@@ -24,7 +24,8 @@ class State(Enum):
     DRAWING = 2
     SOLVING = 3
 
-class Window(Frame):
+
+class App(Frame):
     """
     Class containing data of Tkinter window
 
@@ -184,7 +185,7 @@ class CanvasFrame(Frame):
 
     Attributes
     ----------
-    - window : Window
+    - window : App
         The parent window instance.
 
     - buttons : Dict[str, Button]
@@ -226,7 +227,7 @@ class CanvasFrame(Frame):
         Binds the return key to a function.
     """
 
-    def __init__(self, window: Window):
+    def __init__(self, window: App):
         super().__init__(window.root)
         self.__window = window
 
@@ -331,6 +332,7 @@ class CanvasFrame(Frame):
                 num_rows=num_rows,
                 cell_width=cell_cols,
                 cell_height=cell_rows,
+                cells=[],
             )
             self.drawer = MazeDrawer(self.maze, self)
 

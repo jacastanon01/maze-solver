@@ -2,7 +2,7 @@ from unittest import TestCase, mock, main
 from functools import wraps
 from tkinter import Tk, Frame, Entry
 
-from src.screen import Window, CanvasFrame
+from src.screen import App, CanvasFrame
 from src.maze import Maze, Cell, MazeDrawer
 
 
@@ -18,11 +18,11 @@ def mock_gui_with_setup(func):
             "src.maze.MazeDrawer._animate", lambda *args, **kwargs: None
         ), mock.patch("src.maze.Cell.draw_wall", lambda *args, **kwargs: None):
             tk = Tk()
-            win = Window(tk)
+            app = App(tk)
             num_cols = 12
             num_rows = 10
             m = Maze(0, 0, num_cols, num_rows, 10, 10)
-            MazeDrawer(m, win)
+            MazeDrawer(m, app)
             kwargs.update({"m": m})
 
             return func(*args, **kwargs)
@@ -72,22 +72,21 @@ class MazeTest(TestCase):
                 self.assertEqual(cell.visited, False)
 
     def test_canvas_invalid_inputs(self):
-        # Creating a Window instance
+        # Creating an App instance
         tk = Tk()
-        win = Window(tk)
-        win._create_widgets()
-        canvas_frame = CanvasFrame(win)
+        app = App(tk)
+        app._create_widgets()
 
         # Mocking the Entry widget
         entry_mock = mock.Mock(spec=Entry)
         entry_mock.get.side_effect = ["1", "51", "in"]
 
         # Patching the Entry widget on the Window instance
-        with mock.patch.object(win, "row_input", entry_mock), mock.patch.object(
-            win, "col_input", entry_mock
+        with mock.patch.object(app, "row_input", entry_mock), mock.patch.object(
+            app, "col_input", entry_mock
         ):
             with self.assertRaises(ValueError):
-                win.canvas_frame._validate_input()
+                app.canvas_frame._validate_input()
 
 
 if __name__ == "__main__":

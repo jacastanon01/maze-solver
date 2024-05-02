@@ -1,10 +1,12 @@
 import time
 import random
 from typing import Dict, Tuple, List
+from dataclasses import dataclass
 
-from src.cell import Cell
+from src.cell import Cell, Line, Point
 
 
+@dataclass
 class Maze:
     """
     Data class for Maze structure
@@ -41,29 +43,17 @@ class Maze:
     - get_cell(col: int, row: int) -> Cell
         Returns the cell at the specified column and row
 
-    - get_neighbor_coords(col: int, row: int, direction: str) -> Tuple[Tuple[int, int], str]:
-        Returns all the neboring cells from a cell in a given position
-
     - reset_visited_cells -> None
         Resets all cell's visited attribute to False
     """
 
-    def __init__(
-        self,
-        x_start: int,
-        y_start: int,
-        num_cols: int,
-        num_rows: int,
-        cell_width: int,
-        cell_height: int,
-    ):
-        self._x_start = x_start
-        self._y_start = y_start
-        self._num_rows = num_rows
-        self._num_cols = num_cols
-        self._cell_width = cell_width
-        self._cell_height = cell_height
-        self._cells = []
+    x_start: int
+    y_start: int
+    num_cols: int
+    num_rows: int
+    cell_width: int
+    cell_height: int
+    cells: List[List[Cell]]
 
     def __format__(self, format_spec: str) -> str:
         match format_spec:
@@ -74,69 +64,25 @@ class Maze:
             case _:
                 return self.__repr__()
 
-    def __repr__(self) -> str:
-        return f"Maze({self.x_start}, {self.x_start}, {self.num_rows}, {self.num_cols}, {self.cell_width}, {self.cell_height})"
-
-    @property
-    def x_start(self) -> int:
-        return self._x_start
-
-    @x_start.setter
-    def x_start(self, new_x) -> None:
-        self._x_start = new_x
-
-    @property
-    def y_start(self) -> int:
-        return self._y_start
-
-    @y_start.setter
-    def y_start(self, new_y: int) -> None:
-        self._y_start = new_y
-
-    @property
-    def num_cols(self) -> int:
-        return self._num_cols
-
-    @property
-    def num_rows(self) -> int:
-        return self._num_rows
-
-    @property
-    def cell_width(self) -> int:
-        return self._cell_width
-
-    @property
-    def cell_height(self) -> int:
-        return self._cell_height
-
     @property
     def start_cell(self) -> Cell | None:
-        if not self._cells:
+        if not self.cells:
             return None
-        return self._cells[0][0]
+        return self.cells[0][0]
 
     @property
     def end_cell(self) -> Cell | None:
         if not self._cells:
             return None
-        return self._cells[self.num_cols - 1][self.num_rows - 1]
-
-    @property
-    def cells(self) -> List[List[Cell]]:
-        return self._cells
-
-    @cells.setter
-    def cells(self, new_cells: List[List[Cell]]) -> None:
-        if len(new_cells) == self.num_cols:
-            self._cells = new_cells
+        return self.cells[self.num_cols - 1][self.num_rows - 1]
 
     def get_cell(self, col: int, row: int) -> Cell | None:
         """
         Returns the cell at the specified row and column.
         Returns None if the cell is out of bounds.
         """
-        if 0 <= row < self._num_rows and 0 <= col < self._num_cols:
-            return self._cells[col][row]
+        if 0 <= row < self.num_rows and 0 <= col < self.num_cols:
+            return self.cells[col][row]
         else:
             return None
 
@@ -155,13 +101,7 @@ class Maze:
         return adjacent_cells[direction]
         """
         adjacent_cells = {
-            "top": (
-                (
-                    col,
-                    row - 1,
-                ),
-                "bottom",
-            ),
+            "top": ((col, row - 1), "bottom"),
             "right": ((col + 1, row), "left"),
             "bottom": ((col, row + 1), "top"),
             "left": ((col - 1, row), "right"),
@@ -170,9 +110,9 @@ class Maze:
 
     def reset_visited_cells(self):
         """Sets all cells in matrix to unvisited"""
-        for col in range(self._num_cols):
-            for row in range(self._num_rows):
-                self._cells[col][row].visited = False
+        for col in range(self.num_cols):
+            for row in range(self.num_rows):
+                self.cells[col][row].visited = False
 
 
 class MazeDrawer:
@@ -308,6 +248,69 @@ class MazeDrawer:
                     # Recursively call the function for the neighbor cell
                     self._break_walls_r(neighbor_col, neighbor_row)
             self._draw_cell(col, row)
+
+    # def draw_wall(self, x1: int, y1: int, x2: int, y2: int) -> None:
+    #     """
+    #     Creates a line from coordinates to draw on screen
+
+    #     Parameters
+    #     -----
+    #         x1, y1 : int : Represents top-left point of cell. To be used to draw walls
+
+    #         x2, y2 : int : Represents bottom-right point of cell. To be used to draw walls
+    #     """
+
+    #     self.x1 = x1
+    #     self.y1 = y1
+    #     self.x2 = x2
+    #     self.y2 = y2
+
+    #     # wall_directions = self.get_wall_directions()
+    #     wall_directions = {
+    #         "top": (self.x1, self.y1, self.x2, self.y1),
+    #         "right": (self.x2, self.y2, self.x2, self.y1),
+    #         "bottom": (self.x2, self.y2, self.x1, self.y2),
+    #         "left": (self.x1, self.y1, self.x1, self.y2),
+    #     }
+
+    #     for direction in wall_directions:
+    #         fill_color = (
+    #             "white" if not getattr(self, f"has_{direction}_wall") else "black"
+    #         )
+
+    #         point1 = wall_directions[direction][:2]
+    #         point2 = wall_directions[direction][2:]
+    #         wall_line = Line(Point(*point1), Point(*point2))
+    #         self._canvas.draw_line(wall_line, fill_color)
+
+    # def draw_move(self, to_cell: "Cell", undo=False) -> None:
+    #     """
+    #     Draws lines that navigates between cells
+
+    #     Parameters
+    #     -----
+    #     to_cell : Cell : Specifies next cell to draw line toward
+
+    #     undo ?: bool : Indicates whether line is backtracking
+    #     """
+    #     if not isinstance(to_cell, Cell):
+    #         raise ValueError("Invalid cell instance")
+
+    #     line_color = "gray"
+    #     if undo:
+    #         line_color = "red"
+
+    #     center_x_source = (self.x1 + self.x2) // 2
+    #     center_y_source = (self.y1 + self.y2) // 2
+
+    #     center_x_destination = (to_cell.x1 + to_cell.x2) // 2
+    #     center_y_destination = (to_cell.y1 + to_cell.y2) // 2
+
+    #     line = Line(
+    #         Point(center_x_source, center_y_source),
+    #         Point(center_x_destination, center_y_destination),
+    #     )
+    #     self._canvas.draw_line(line, fill_color=line_color)
 
 
 class MazeSolver:
