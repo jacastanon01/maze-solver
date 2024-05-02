@@ -1,5 +1,10 @@
 # Deterministic Maze Generator
 
+
+![maze_demo](https://github.com/jacastanon01/maze-solver/assets/24418510/afc3aed4-cdbf-4c79-89fd-8076d49685d4)
+
+
+
 This is a small application that utilizes Tkinter as a GUI for a maze. The walls of the maze are randomly constructed and the maze is solved using a depth-first search, meaning you can watch as the algorithm traverses through the maze and backtrack until it finds the end.
 
 ## Demo
