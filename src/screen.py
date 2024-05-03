@@ -27,7 +27,45 @@ class CanvasState(Enum):
     SOLVING = 3
 
 
-class App(Frame):
+class App:
+
+    def __init__(self, master: Tk):
+        # instantiaing the Tkinter window and setting size
+        # super().__init__(master)
+        self.__root = master
+        self.__root.geometry("800x800")
+        self.__root.title("Maze Solver")
+        self.__root.protocol("WM_DELETE_WINDOW", self.close)
+
+        self.config = AppConfig(self)
+
+    @property
+    def root(self):
+        return self.__root
+
+    def start(self) -> None:
+        self.__root.mainloop()
+
+    def close(self) -> None:
+        self.__root.destroy()
+
+    def is_valid_window(self) -> bool:
+        """Method that checks if window is still open before drawing to it"""
+        try:
+            return self.__root.winfo_exists()
+        except TclError:
+            pass
+
+    def wait_for_close(self) -> None:
+        """Method that checks if window is still open before drawing to it"""
+        try:
+            while self.is_valid_window():
+                self.config.redraw()
+        except TclError:
+            pass
+
+
+class AppConfig(Frame):
     """
     Class containing data of Tkinter window
 
@@ -67,14 +105,9 @@ class App(Frame):
         Waits for the window to close before redrawing.
     """
 
-    def __init__(self, master: Tk):
-        # instantiaing the Tkinter window and setting size
-        super().__init__(master)
-        self.__root = master
-        self.__root.geometry("800x800")
-        self.__root.title("Maze Solver")
-        self.__root.protocol("WM_DELETE_WINDOW", self.close)
-
+    def __init__(self, app: App):
+        super().__init__(app.root)
+        self.app = app
         # setting state
         self.canvas_state = CanvasState.IDLE
         self.buttons = {}
@@ -90,10 +123,6 @@ class App(Frame):
         self.row_input.config(validate="key", validatecommand=(validate_int, "%P"))
         self.col_input.config(validate="key", validatecommand=(validate_int, "%P"))
 
-    @property
-    def root(self):
-        return self.__root
-
     def _enable_draw_button(self, event):
         """
         Validates that both entries have values before enabling draw button
@@ -107,7 +136,7 @@ class App(Frame):
         """
         Defines new Frame for widget components
         """
-        self.control_frame = Frame(self.__root)
+        self.control_frame = Frame(self.app.root)
         self.control_frame.pack()
 
         row_label = Label(self.control_frame, text="Rows")
@@ -138,31 +167,10 @@ class App(Frame):
             self.buttons[action].grid(row=2, column=i)
             self.toggle_button_state(action, False)
 
-    def start(self) -> None:
-        self.__root.mainloop()
-
-    def close(self) -> None:
-        self.__root.destroy()
-
-    def is_valid_window(self) -> bool:
-        """Method that checks if window is still open before drawing to it"""
-        try:
-            return self.__root.winfo_exists()
-        except TclError:
-            pass
-
-    def wait_for_close(self) -> None:
-        """Method that checks if window is still open before drawing to it"""
-        try:
-            while self.is_valid_window():
-                self.redraw()
-        except TclError:
-            pass
-
     def redraw(self) -> None:
         if self.canvas_state != CanvasState.IDLE:
-            self.__root.update_idletasks()
-            self.__root.update()
+            self.app.root.update_idletasks()
+            self.app.root.update()
 
     def toggle_button_state(self, value: str, state: bool = None):
         btn = self.buttons.get(value)
@@ -226,7 +234,7 @@ class CanvasFrame(Frame):
     """
 
     def __init__(self, window: App):
-        super().__init__(window.root)
+        super().__init__(window.app.root)
         self.__window = window
 
         self.maze = None
@@ -335,6 +343,7 @@ class CanvasFrame(Frame):
         if self.drawer and self.maze:
             self.toggle_button_state("draw", False)
             self.toggle_button_state("solve", False)
+            # creating a new instance doesn't allow you to save any previous solutions
             self.maze_solver = MazeSolver(self.maze, self.drawer)
             self.maze_solver_id = id(self.maze_solver)
             self.maze_solver.solve()
@@ -360,4 +369,4 @@ class CanvasFrame(Frame):
         """
         Method that binds return key to a function
         """
-        self.__window.root.bind("<Return>", func)
+        self.__window.app.root.bind("<Return>", func)
