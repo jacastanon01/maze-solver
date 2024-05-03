@@ -234,7 +234,7 @@ class MazeDrawer:
             Defaults to False
             Used to determine time to sleep while redrawing
         """
-        self._canvas.window.redraw()
+        self._canvas.parent_frame.update_canvas()
         if path:
             time.sleep(0.1)
         else:
@@ -348,15 +348,6 @@ class MazeSolver:
         self._maze = maze
         self._drawer = md
 
-    def solve(self) -> bool:
-        """
-        Solves maze using depth-first traversal to find exit path
-        Calls self._dfs_r from the first cell
-        return self._dfs_r(0, 0)
-        """
-        self.solution = set()
-        return self._dfs_r(0, 0)
-
     def _dfs_r(self, col: int, row: int) -> bool:
         """
         The _dfs_r method returns True if the current cell is an end cell,
@@ -411,3 +402,12 @@ class MazeSolver:
                     self._dfs_r(neighbor_col, neighbor_row)
 
         return False
+
+    def solve(self) -> bool:
+        """
+        Solves maze using depth-first traversal to find exit path
+        Calls self._dfs_r from the first cell
+        return self._dfs_r(0, 0)
+        """
+        self.solution = set()
+        return self._dfs_r(0, 0)
