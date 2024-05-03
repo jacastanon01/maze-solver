@@ -12,6 +12,7 @@ This is a small application that utilizes Tkinter as a GUI for a maze. The walls
 - Enter a number for rows and columns in the text box at the top of the window
 - Click the "Generate Maze" button or Enter to generate a new maze
 - Click the "Solve Maze" button or Enter to solve the maze
+- Click the "Reset Maze" button or Enter after solving maze to reset the maze
 
 ## Technologies Used
 
