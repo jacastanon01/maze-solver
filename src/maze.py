@@ -287,9 +287,11 @@ class MazeDrawer:
                     self._break_walls_r(neighbor_col, neighbor_row)
             self._draw_cell(col, row)
 
-    def draw_move(self, from_cell: Cell, to_cell: "Cell", undo=False) -> None:
+    def draw_move(self, from_cell: Cell, to_cell: "Cell", undo=False) -> int:
         """
         Draws a line connecting two cells on the canvas.
+        If undo is True, the line will backtrack
+        Returns id created from self._canvas.create_line to be able to delete it later
 
         Parameters
         ----------
@@ -317,7 +319,8 @@ class MazeDrawer:
             Point(center_x_source, center_y_source),
             Point(center_x_destination, center_y_destination),
         )
-        self._canvas.draw_line(line, fill_color=line_color)
+        line_id = self._canvas.draw_line(line, fill_color=line_color)
+        return line_id
 
 
 class MazeSolver:
@@ -351,6 +354,7 @@ class MazeSolver:
         Calls self._dfs_r from the first cell
         return self._dfs_r(0, 0)
         """
+        self.solution = set()
         return self._dfs_r(0, 0)
 
     def _dfs_r(self, col: int, row: int) -> bool:
@@ -390,14 +394,18 @@ class MazeSolver:
                     and not getattr(neighbor, f"has_{opposite_direction}_wall")
                 ):
                     # draw move to neighbor
-                    self._drawer.draw_move(current_cell, neighbor)
+                    line_id = self._drawer.draw_move(current_cell, neighbor)
+                    self.solution.add(line_id)
                     self._drawer._animate(path=True)
                     if self._dfs_r(neighbor_col, neighbor_row):
                         # if neighbor is last cell, return True
                         return True
                     else:
                         # if neighbor is not last cell, recursively backtrack
-                        self._drawer.draw_move(neighbor, current_cell, undo=True)
+                        line_id = self._drawer.draw_move(
+                            neighbor, current_cell, undo=True
+                        )
+                        self.solution.add(line_id)
                         self._drawer._animate(path=True)
 
                     self._dfs_r(neighbor_col, neighbor_row)
