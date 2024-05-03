@@ -390,14 +390,14 @@ class MazeSolver:
                     and not getattr(neighbor, f"has_{opposite_direction}_wall")
                 ):
                     # draw move to neighbor
-                    current_cell.draw_move(neighbor)
+                    self._drawer.draw_move(current_cell, neighbor)
                     self._drawer._animate(path=True)
                     if self._dfs_r(neighbor_col, neighbor_row):
                         # if neighbor is last cell, return True
                         return True
                     else:
                         # if neighbor is not last cell, recursively backtrack
-                        neighbor.draw_move(current_cell, undo=True)
+                        self._drawer.draw_move(neighbor, current_cell, undo=True)
                         self._drawer._animate(path=True)
 
                     self._dfs_r(neighbor_col, neighbor_row)
