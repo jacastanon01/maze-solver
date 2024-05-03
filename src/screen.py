@@ -124,7 +124,7 @@ class AppConfig(Frame):
         self.row_input.config(validate="key", validatecommand=(validate_int, "%P"))
         self.col_input.config(validate="key", validatecommand=(validate_int, "%P"))
 
-    def _enable_draw_button(self, event):
+    def _enable_draw_button(self, event: Event):
         """
         Validates that both entries have values before enabling draw button
         """
@@ -173,8 +173,20 @@ class AppConfig(Frame):
             self.app.root.update_idletasks()
             self.app.root.update()
 
-    def toggle_button_state(self, value: str, state: bool = None):
-        btn = self.buttons.get(value)
+    def toggle_button_state(self, button_text: str, state: bool = None):
+        """
+        Explictly set button state. If no state is passed, toggle the button's
+        current state.
+
+        Parameters
+        ----------
+        button_text : str
+            The name of the button to toggle
+        state : bool, optional
+            The state to set the button to, if not passed, toggle the button's
+            current state
+        """
+        btn = self.buttons.get(button_text)
         if btn is None:
             raise ValueError("Invalid button")
         # if state is explicitly defined, set button to it
@@ -192,7 +204,7 @@ class CanvasFrame(Frame):
 
     Attributes
     ----------
-    - window : App
+    - parent_frame : App
         The parent window instance.
 
     - buttons : Dict[str, Button]
@@ -234,25 +246,21 @@ class CanvasFrame(Frame):
         Binds the return key to a function.
     """
 
-    def __init__(self, window: App):
-        super().__init__(window.app.root)
-        self.__window = window
-
+    def __init__(self, parent_frame: AppConfig):
+        super().__init__(parent_frame.app.root)
+        self.parent_frame = parent_frame
         self.maze = None
         self.canvas = None
+        self.canvas_state = self.parent_frame.canvas_state
 
         self.create_canvas()
         self._bind_return(self.draw_maze)
 
-    @property
-    def window(self):
-        return self.__window
-
     def set_state(self, state: CanvasState):
-        self.__window.canvas_state = state
+        self.parent_frame.canvas_state = state
 
     def toggle_button_state(self, value: str, state: bool = None):
-        self.__window.toggle_button_state(value, state)
+        self.parent_frame.toggle_button_state(value, state)
 
     def create_canvas(self):
         self.canvas = Canvas(self, bg="white")
@@ -260,7 +268,7 @@ class CanvasFrame(Frame):
 
     def draw_line(self, line: Line, fill_color="black") -> int:
         """Draws line to canvas and returns id created from Canvas.create_line"""
-        if self.__window.canvas_state in [CanvasState.DRAWING, CanvasState.SOLVING]:
+        if self.parent_frame.canvas_state in [CanvasState.DRAWING, CanvasState.SOLVING]:
             point1, point2 = line.get_points()
             x1, y1 = point1.x, point1.y
             x2, y2 = point2.x, point2.y
@@ -275,8 +283,8 @@ class CanvasFrame(Frame):
         Otherwise, an exception is raised
         """
         try:
-            cols_entry = int(self.__window.col_input.get())
-            rows_entry = int(self.__window.row_input.get())
+            cols_entry = int(self.parent_frame.col_input.get())
+            rows_entry = int(self.parent_frame.row_input.get())
             if cols_entry < 2 or cols_entry > 50 or rows_entry < 2 or rows_entry > 50:
                 raise ValueError("Maze must have between 2 and 50 columns")
             return cols_entry, rows_entry
@@ -338,7 +346,7 @@ class CanvasFrame(Frame):
             showerror("Error", message=e)
 
     def solve_maze(self, event: Optional[Event] = None):
-        if self.window.canvas_state in [CanvasState.DRAWING, CanvasState.SOLVING]:
+        if self.parent_frame.canvas_state in [CanvasState.DRAWING, CanvasState.SOLVING]:
             self._clear_canvas()
         self.set_state(CanvasState.SOLVING)
         if self.drawer and self.maze:
@@ -362,7 +370,7 @@ class CanvasFrame(Frame):
             self.maze_solver = None
 
         self.maze.reset_visited_cells()
-        self.__window.redraw()
+        self.parent_frame.redraw()
         self.set_state(CanvasState.IDLE)
         self.toggle_button_state("solve", True)
         self.toggle_button_state("draw", True)
@@ -372,4 +380,4 @@ class CanvasFrame(Frame):
         """
         Method that binds return key to a function
         """
-        self.__window.app.root.bind("<Return>", func)
+        self.parent_frame.app.root.bind("<Return>", func)

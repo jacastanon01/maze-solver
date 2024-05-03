@@ -234,7 +234,7 @@ class MazeDrawer:
             Defaults to False
             Used to determine time to sleep while redrawing
         """
-        self._canvas.window.redraw()
+        self._canvas.parent_frame.redraw()
         if path:
             time.sleep(0.1)
         else:
