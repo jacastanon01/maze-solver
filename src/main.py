@@ -1,11 +1,11 @@
 from tkinter import Tk
 
-from src.screen import Window
+from src.screen import App
 
 
 def main():
     root = Tk()
-    app = Window(master=root)
+    app = App(master=root)
     app.start()
     app.wait_for_close()
 

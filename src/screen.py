@@ -17,6 +17,7 @@ from typing import Tuple, Callable, Dict, Optional
 
 
 from src.maze import Maze, MazeDrawer, MazeSolver
+from src.cell import Line
 
 
 class State(Enum):
@@ -24,7 +25,8 @@ class State(Enum):
     DRAWING = 2
     SOLVING = 3
 
-class Window(Frame):
+
+class App(Frame):
     """
     Class containing data of Tkinter window
 
@@ -184,7 +186,7 @@ class CanvasFrame(Frame):
 
     Attributes
     ----------
-    - window : Window
+    - window : App
         The parent window instance.
 
     - buttons : Dict[str, Button]
@@ -226,7 +228,7 @@ class CanvasFrame(Frame):
         Binds the return key to a function.
     """
 
-    def __init__(self, window: Window):
+    def __init__(self, window: App):
         super().__init__(window.root)
         self.__window = window
 
@@ -250,7 +252,7 @@ class CanvasFrame(Frame):
         self.canvas = Canvas(self, bg="white")
         self.canvas.pack(fill=BOTH, expand=True)
 
-    def draw_line(self, line, fill_color="black"):
+    def draw_line(self, line: Line, fill_color="black"):
         """Draws line to canvas"""
         if self.__window.state in [State.DRAWING, State.SOLVING]:
             point1, point2 = line.get_points()
@@ -331,6 +333,7 @@ class CanvasFrame(Frame):
                 num_rows=num_rows,
                 cell_width=cell_cols,
                 cell_height=cell_rows,
+                cells=[],
             )
             self.drawer = MazeDrawer(self.maze, self)
 

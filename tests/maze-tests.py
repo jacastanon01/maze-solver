@@ -2,7 +2,7 @@ from unittest import TestCase, mock, main
 from functools import wraps
 from tkinter import Tk, Frame, Entry
 
-from src.screen import Window, CanvasFrame
+from src.screen import App, CanvasFrame
 from src.maze import Maze, Cell, MazeDrawer
 
 
@@ -14,15 +14,21 @@ def mock_gui_with_setup(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        with mock.patch(
-            "src.maze.MazeDrawer._animate", lambda *args, **kwargs: None
-        ), mock.patch("src.maze.Cell.draw_wall", lambda *args, **kwargs: None):
+        with mock.patch("src.maze.MazeDrawer._animate", lambda *args, **kwargs: None):
             tk = Tk()
-            win = Window(tk)
+            app = App(tk)
             num_cols = 12
             num_rows = 10
-            m = Maze(0, 0, num_cols, num_rows, 10, 10)
-            MazeDrawer(m, win)
+            m = Maze(
+                x_start=0,
+                y_start=0,
+                num_cols=num_cols,
+                num_rows=num_rows,
+                cell_width=10,
+                cell_height=10,
+                cells=[],
+            )
+            MazeDrawer(m, app.canvas_frame)
             kwargs.update({"m": m})
 
             return func(*args, **kwargs)
@@ -36,11 +42,11 @@ class MazeTest(TestCase):
         num_cols = 12
         num_rows = 10
         self.assertEqual(
-            len(m._cells),
+            len(m.cells),
             num_cols,
         )
         self.assertEqual(
-            len(m._cells[0]),
+            len(m.cells[0]),
             num_rows,
         )
 
@@ -49,7 +55,15 @@ class MazeTest(TestCase):
         num_rows = 10
         cell_width = 10
         cell_height = 10
-        m = Maze(0, 0, num_cols, num_rows, cell_width, cell_height)
+        m = Maze(
+            x_start=0,
+            y_start=0,
+            num_cols=num_cols,
+            num_rows=num_rows,
+            cell_width=cell_width,
+            cell_height=cell_height,
+            cells=[],
+        )
         self.assertEqual(
             f"{m:long}",
             f"Maze with {num_rows} rows and {num_cols} columns, cell size: {cell_width}x{cell_height}",
@@ -67,27 +81,26 @@ class MazeTest(TestCase):
 
     @mock_gui_with_setup
     def test_reset_visited_cells(self, m: Maze):
-        for col in m._cells:
+        for col in m.cells:
             for cell in col:
                 self.assertEqual(cell.visited, False)
 
     def test_canvas_invalid_inputs(self):
-        # Creating a Window instance
+        # Creating an App instance
         tk = Tk()
-        win = Window(tk)
-        win._create_widgets()
-        canvas_frame = CanvasFrame(win)
+        app = App(tk)
+        app._create_widgets()
 
         # Mocking the Entry widget
         entry_mock = mock.Mock(spec=Entry)
         entry_mock.get.side_effect = ["1", "51", "in"]
 
         # Patching the Entry widget on the Window instance
-        with mock.patch.object(win, "row_input", entry_mock), mock.patch.object(
-            win, "col_input", entry_mock
+        with mock.patch.object(app, "row_input", entry_mock), mock.patch.object(
+            app, "col_input", entry_mock
         ):
             with self.assertRaises(ValueError):
-                win.canvas_frame._validate_input()
+                app.canvas_frame._validate_input()
 
 
 if __name__ == "__main__":
