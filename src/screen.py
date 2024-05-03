@@ -29,10 +29,26 @@ class CanvasState(Enum):
 
 
 class App:
+    """
+    Superclass for the application. It contains the main loop and the canvas.
+
+    Methods
+    -------
+    - start() -> None:
+        Starts the Tkinter window main loop.
+
+    - close() -> None:
+        Terminates the window.
+
+    - is_valid_window() -> bool:
+        Checks if the window is still open.
+
+    - wait_for_close() -> None:
+        Waits for the window to close before redrawing.
+    """
 
     def __init__(self, master: Tk):
         # instantiaing the Tkinter window and setting size
-        # super().__init__(master)
         self.__root = master
         self.__root.geometry("800x800")
         self.__root.title("Maze Solver")
@@ -92,18 +108,6 @@ class AppConfig(Frame):
 
     - _create_buttons() -> None:
         Creates buttons for drawing, solving, and resetting the maze.
-
-    - start() -> None:
-        Starts the Tkinter window main loop.
-
-    - close() -> None:
-        Terminates the window.
-
-    - is_valid_window() -> bool:
-        Checks if the window is still open.
-
-    - wait_for_close() -> None:
-        Waits for the window to close before redrawing.
     """
 
     def __init__(self, app: App):
@@ -256,24 +260,6 @@ class CanvasFrame(Frame):
         self.create_canvas()
         self._bind_return(self.draw_maze)
 
-    def set_state(self, state: CanvasState):
-        self.parent_frame.canvas_state = state
-
-    def toggle_button_state(self, value: str, state: bool = None):
-        self.parent_frame.toggle_button_state(value, state)
-
-    def create_canvas(self):
-        self.canvas = Canvas(self, bg="white")
-        self.canvas.pack(fill=BOTH, expand=True)
-
-    def draw_line(self, line: Line, fill_color="black") -> int:
-        """Draws line to canvas and returns id created from Canvas.create_line"""
-        if self.parent_frame.canvas_state in [CanvasState.DRAWING, CanvasState.SOLVING]:
-            point1, point2 = line.get_points()
-            x1, y1 = point1.x, point1.y
-            x2, y2 = point2.x, point2.y
-            return self.canvas.create_line(x1, y1, x2, y2, fill=fill_color, width=2)
-
     def _clear_canvas(self):
         self.canvas.delete("all")
 
@@ -312,6 +298,30 @@ class CanvasFrame(Frame):
         padding_y = (WINDOW_SIZE - maze_height) / 2
 
         return (padding_x, padding_y)
+
+    def _bind_return(self, func: Callable):
+        """
+        Method that binds return key to a function
+        """
+        self.parent_frame.app.root.bind("<Return>", func)
+
+    def set_state(self, state: CanvasState):
+        self.parent_frame.canvas_state = state
+
+    def toggle_button_state(self, value: str, state: bool = None):
+        self.parent_frame.toggle_button_state(value, state)
+
+    def create_canvas(self):
+        self.canvas = Canvas(self, bg="white")
+        self.canvas.pack(fill=BOTH, expand=True)
+
+    def draw_line(self, line: Line, fill_color="black") -> int:
+        """Draws line to canvas and returns id created from Canvas.create_line"""
+        if self.parent_frame.canvas_state in [CanvasState.DRAWING, CanvasState.SOLVING]:
+            point1, point2 = line.get_points()
+            x1, y1 = point1.x, point1.y
+            x2, y2 = point2.x, point2.y
+            return self.canvas.create_line(x1, y1, x2, y2, fill=fill_color, width=2)
 
     def draw_maze(self, event: Optional[Event] = None):
         try:
@@ -375,9 +385,3 @@ class CanvasFrame(Frame):
         self.toggle_button_state("solve", True)
         self.toggle_button_state("draw", True)
         self._bind_return(self.solve_maze)
-
-    def _bind_return(self, func: Callable):
-        """
-        Method that binds return key to a function
-        """
-        self.parent_frame.app.root.bind("<Return>", func)
