@@ -14,9 +14,7 @@ def mock_gui_with_setup(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        with mock.patch(
-            "src.maze.MazeDrawer._animate", lambda *args, **kwargs: None
-        ), mock.patch("src.maze.Cell.draw_wall", lambda *args, **kwargs: None):
+        with mock.patch("src.maze.MazeDrawer._animate", lambda *args, **kwargs: None):
             tk = Tk()
             app = App(tk)
             num_cols = 12
