@@ -250,13 +250,13 @@ class CanvasFrame(Frame):
         self.canvas = Canvas(self, bg="white")
         self.canvas.pack(fill=BOTH, expand=True)
 
-    def draw_line(self, line: Line, fill_color="black"):
-        """Draws line to canvas"""
+    def draw_line(self, line: Line, fill_color="black") -> int:
+        """Draws line to canvas and returns id created from Canvas.create_line"""
         if self.__window.canvas_state in [CanvasState.DRAWING, CanvasState.SOLVING]:
             point1, point2 = line.get_points()
             x1, y1 = point1.x, point1.y
             x2, y2 = point2.x, point2.y
-            self.canvas.create_line(x1, y1, x2, y2, fill=fill_color, width=2)
+            return self.canvas.create_line(x1, y1, x2, y2, fill=fill_color, width=2)
 
     def _clear_canvas(self):
         self.canvas.delete("all")
@@ -301,7 +301,8 @@ class CanvasFrame(Frame):
         try:
             num_cols, num_rows = self._validate_input()
             padding_x, padding_y = self._calculate_padding(num_cols, num_rows)
-            self.reset_maze()
+            if self.maze:
+                self.reset_maze()
 
             self.toggle_button_state("draw", False)
             self.toggle_button_state("solve", False)
@@ -330,14 +331,15 @@ class CanvasFrame(Frame):
             showerror("Error", message=e)
 
     def solve_maze(self, event=None):
-        if self.window.canvas_state != CanvasState.IDLE:
+        if self.window.canvas_state in [CanvasState.DRAWING, CanvasState.SOLVING]:
             self._clear_canvas()
         self.set_state(CanvasState.SOLVING)
         if self.drawer and self.maze:
             self.toggle_button_state("draw", False)
             self.toggle_button_state("solve", False)
-            solver = MazeSolver(self.maze, self.drawer)
-            solver.solve()
+            self.maze_solver = MazeSolver(self.maze, self.drawer)
+            self.maze_solver_id = id(self.maze_solver)
+            self.maze_solver.solve()
             self._bind_return(self.draw_maze)
         else:
             showerror(title="Error", message="Must draw maze before solving it")
@@ -345,12 +347,17 @@ class CanvasFrame(Frame):
         self.toggle_button_state("draw", True)
 
     def reset_maze(self):
-        self._clear_canvas()
-        # self.maze = None
-        self.drawer = None
-        self.set_state(CanvasState.IDLE)
-        self.toggle_button_state("solve", False)
-        self.toggle_button_state("draw", True)
+        if hasattr(self, "maze_solver"):
+            print(self.maze_solver.solution)
+            for item in self.maze_solver.solution:
+                self.canvas.delete(item)
+            # self.canvas.delete(self.solution_id)
+            self.__window.redraw()
+            self.maze = None
+            self.drawer = None
+            self.set_state(CanvasState.IDLE)
+            self.toggle_button_state("solve", False)
+            self.toggle_button_state("draw", True)
 
     def _bind_return(self, func: Callable):
         """
