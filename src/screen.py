@@ -77,7 +77,7 @@ class App:
         """Method that checks if window is still open before drawing to it"""
         try:
             while self.is_valid_window():
-                self.config.redraw()
+                self.config.update_canvas()
         except TclError:
             pass
 
@@ -96,6 +96,12 @@ class AppConfig(Frame):
 
     Methods
     -------
+    - _create_widgets() -> None:
+        Defines the frame for widget components.
+
+    - _create_buttons() -> None:
+        Creates buttons for drawing, solving, and resetting the maze.
+
     - set_state(state: State) -> None:
         Sets the state of the window.
 
@@ -103,11 +109,8 @@ class AppConfig(Frame):
         Toggles the state of a button based on the current state of the canvas.
         If `state` is provided, sets the button state accordingly.
 
-    - _create_widgets() -> None:
-        Defines the frame for widget components.
-
-    - _create_buttons() -> None:
-        Creates buttons for drawing, solving, and resetting the maze.
+    - update_canvas() -> None:
+        Updates the canvas based on the current state of the window.
     """
 
     def __init__(self, app: App):
@@ -172,7 +175,7 @@ class AppConfig(Frame):
             self.buttons[action].grid(row=2, column=i)
             self.toggle_button_state(action, False)
 
-    def redraw(self) -> None:
+    def update_canvas(self) -> None:
         if self.canvas_state != CanvasState.IDLE:
             self.app.root.update_idletasks()
             self.app.root.update()
@@ -242,9 +245,6 @@ class CanvasFrame(Frame):
 
     - reset_maze(event=None) -> None:
         Resets the maze.
-
-    - redraw() -> None:
-        Updates the Tkinter root to draw to it.
 
     - _bind_return(func: Callable) -> None:
         Binds the return key to a function.
@@ -380,7 +380,7 @@ class CanvasFrame(Frame):
             self.maze_solver = None
 
         self.maze.reset_visited_cells()
-        self.parent_frame.redraw()
+        self.parent_frame.update_canvas()
         self.set_state(CanvasState.IDLE)
         self.toggle_button_state("solve", True)
         self.toggle_button_state("draw", True)
