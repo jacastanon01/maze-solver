@@ -5,7 +5,6 @@ from tkinter import (
     BOTH,
     Entry,
     Label,
-    IntVar,
     Canvas,
     DISABLED,
     NORMAL,
@@ -13,14 +12,16 @@ from tkinter import (
 )
 from tkinter.messagebox import showerror
 from enum import Enum
-from typing import Tuple, Callable, Dict, Optional
+from typing import Tuple, Callable
 
 
 from src.maze import Maze, MazeDrawer, MazeSolver
 from src.cell import Line
 
+WINDOW_SIZE = 800
 
-class State(Enum):
+
+class CanvasState(Enum):
     IDLE = 1
     DRAWING = 2
     SOLVING = 3
@@ -75,7 +76,7 @@ class App(Frame):
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
 
         # setting state
-        self.state = State.IDLE
+        self.canvas_state = CanvasState.IDLE
         self.buttons = {}
 
         # adding widgets to GUI and creating a frame for the maze
@@ -160,12 +161,9 @@ class App(Frame):
             pass
 
     def redraw(self) -> None:
-        if self.state != State.IDLE:
+        if self.canvas_state != CanvasState.IDLE:
             self.__root.update_idletasks()
             self.__root.update()
-
-    def set_state(self, state: State):
-        self.state = state
 
     def toggle_button_state(self, value: str, state: bool = None):
         btn = self.buttons.get(value)
@@ -176,7 +174,7 @@ class App(Frame):
             btn["state"] = NORMAL if state else DISABLED
         else:
             # Only togglable when canvas is idle
-            if self.state == State.IDLE:
+            if self.canvas_state == CanvasState.IDLE:
                 btn["state"] = NORMAL if btn["state"] == DISABLED else DISABLED
 
 
@@ -209,7 +207,7 @@ class CanvasFrame(Frame):
     - _clear_canvas() -> None:
         Clears the canvas.
 
-    - _calculate_window_sizes() -> Tuple[int, int, int, int, int, int]:
+    - _calculate_padding() -> Tuple[int, int, int, int, int, int]:
         Calculates window sizes based on user input.
 
     - draw_maze(event=None) -> None:
@@ -242,8 +240,8 @@ class CanvasFrame(Frame):
     def window(self):
         return self.__window
 
-    def set_state(self, state: State):
-        self.__window.set_state(state)
+    def set_state(self, state: CanvasState):
+        self.__window.canvas_state = state
 
     def toggle_button_state(self, value: str, state: bool = None):
         self.__window.toggle_button_state(value, state)
@@ -254,7 +252,7 @@ class CanvasFrame(Frame):
 
     def draw_line(self, line: Line, fill_color="black"):
         """Draws line to canvas"""
-        if self.__window.state in [State.DRAWING, State.SOLVING]:
+        if self.__window.canvas_state in [CanvasState.DRAWING, CanvasState.SOLVING]:
             point1, point2 = line.get_points()
             x1, y1 = point1.x, point1.y
             x2, y2 = point2.x, point2.y
@@ -277,51 +275,37 @@ class CanvasFrame(Frame):
         except ValueError:
             raise ValueError("Please enter valid numeric values for rows and columns.")
 
-    def _calculate_window_sizes(
-        self, rows_entry: int, cols_entry: int
-    ) -> Tuple[int, int, int, int, int, int]:
+    def _calculate_padding(self, num_cols: int, num_rows: int) -> Tuple[int, int]:
         """
-        Takes user input of columns and rows to calculate the size of a window based on those values.
-        Calls draw_maze with input values to draw the maze
+        Takes user input of columns and rows to calculate how much padding to put around the maze
+
+        Parameters
+        ----------
+        - num_cols: int
+            Number of columns in the maze
+        - num_rows: int
+            Number of rows in the maze
         """
-        desired_padding = 10
-        cell_cols = 20 if cols_entry < 25 else 10
-        cell_rows = 20 if rows_entry < 25 else 10
-        window_size = 800
+        cell_cols = 20 if num_rows < 25 else 10
+        cell_rows = 20 if num_cols < 25 else 10
 
-        maze_width = cols_entry * cell_cols
-        maze_height = rows_entry * cell_rows
+        maze_width = num_rows * cell_cols
+        maze_height = num_cols * cell_rows
 
-        window_width = maze_width + (
-            desired_padding * 2
-        )  # Maze size plus padding for left and right
-        window_height = maze_height + (
-            desired_padding * 2
-        )  # Maze size plus padding for top and bottom
+        padding_x = (WINDOW_SIZE - maze_width) / 2
+        padding_y = (WINDOW_SIZE - maze_height) / 2
 
-        padding_x = (window_size - maze_width) / 2
-        padding_y = (window_size - maze_height) / 2
-
-        return (
-            window_size,
-            window_size,
-            padding_x,
-            padding_y,
-            cols_entry,
-            rows_entry,
-        )
+        return (padding_x, padding_y)
 
     def draw_maze(self, event=None):
         try:
-            cols_entry, rows_entry = self._validate_input()
-            width, height, padding_x, padding_y, num_cols, num_rows = (
-                self._calculate_window_sizes(rows_entry, cols_entry)
-            )
+            num_cols, num_rows = self._validate_input()
+            padding_x, padding_y = self._calculate_padding(num_cols, num_rows)
             self.reset_maze()
 
             self.toggle_button_state("draw", False)
             self.toggle_button_state("solve", False)
-            self.set_state(State.DRAWING)
+            self.set_state(CanvasState.DRAWING)
 
             cell_cols = 20 if num_cols < 25 else 10
             cell_rows = 20 if num_rows < 25 else 10
@@ -339,16 +323,16 @@ class CanvasFrame(Frame):
 
             if self.maze and self.drawer:
                 self.toggle_button_state("solve", True)
-                self.set_state(State.IDLE)
+                self.set_state(CanvasState.IDLE)
                 self._bind_return(self.solve_maze)
 
         except ValueError as e:
             showerror("Error", message=e)
 
     def solve_maze(self, event=None):
-        if self.window.state != State.IDLE:
+        if self.window.canvas_state != CanvasState.IDLE:
             self._clear_canvas()
-        self.set_state(State.SOLVING)
+        self.set_state(CanvasState.SOLVING)
         if self.drawer and self.maze:
             self.toggle_button_state("draw", False)
             self.toggle_button_state("solve", False)
@@ -357,14 +341,14 @@ class CanvasFrame(Frame):
             self._bind_return(self.draw_maze)
         else:
             showerror(title="Error", message="Must draw maze before solving it")
-        self.set_state(State.IDLE)
+        self.set_state(CanvasState.IDLE)
         self.toggle_button_state("draw", True)
 
     def reset_maze(self):
         self._clear_canvas()
-        self.maze = None
+        # self.maze = None
         self.drawer = None
-        self.set_state(State.IDLE)
+        self.set_state(CanvasState.IDLE)
         self.toggle_button_state("solve", False)
         self.toggle_button_state("draw", True)
 
