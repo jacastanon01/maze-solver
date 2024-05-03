@@ -28,7 +28,7 @@ def mock_gui_with_setup(func):
                 cell_height=10,
                 cells=[],
             )
-            MazeDrawer(m, app.canvas_frame)
+            MazeDrawer(m, app.config.canvas_frame)
             kwargs.update({"m": m})
 
             return func(*args, **kwargs)
@@ -89,18 +89,18 @@ class MazeTest(TestCase):
         # Creating an App instance
         tk = Tk()
         app = App(tk)
-        app._create_widgets()
+        app.config._create_widgets()
 
         # Mocking the Entry widget
         entry_mock = mock.Mock(spec=Entry)
         entry_mock.get.side_effect = ["1", "51", "in"]
 
         # Patching the Entry widget on the Window instance
-        with mock.patch.object(app, "row_input", entry_mock), mock.patch.object(
-            app, "col_input", entry_mock
+        with mock.patch.object(app.config, "row_input", entry_mock), mock.patch.object(
+            app.config, "col_input", entry_mock
         ):
             with self.assertRaises(ValueError):
-                app.canvas_frame._validate_input()
+                app.config.canvas_frame._validate_input()
 
 
 if __name__ == "__main__":
