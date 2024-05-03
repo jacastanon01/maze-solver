@@ -1,9 +1,6 @@
 # Deterministic Maze Generator
 
-
 ![maze_demo](https://github.com/jacastanon01/maze-solver/assets/24418510/afc3aed4-cdbf-4c79-89fd-8076d49685d4)
-
-
 
 This is a small application that utilizes Tkinter as a GUI for a maze. The walls of the maze are randomly constructed and the maze is solved using a depth-first search, meaning you can watch as the algorithm traverses through the maze and backtrack until it finds the end.
 
@@ -34,4 +31,4 @@ Another challenge was trying to keep certain sections segregated from each other
 - MazeSolver class which would contain the logic for solving the maze
 - MazeDrawer class which be the interface for actually drawing the maze on the canvas
 
-My primary focus with this project was to use some data structure and algorithms in an actual project. For example, when the maze is being solved, if the path reaches a deadend, how does it know which valid direction it can move within the maze? My solution was to define a hashtable for eacj Cell that contained the coordinates of all the cells sorrounding it and then check if any are blocked by a wall. If they are, it will check another random direction's coordinates. If they are not, then the path can move in that direction. In my solution's depth-first algorithm, I kept track of which cells had already been visited so that when backtracking, the path is not drawn in the same direction from which it came and it can recursively figure out a way to the end.
+My primary focus with this project was to use some data structures and algorithms in an actual project. For example, when the maze is being solved, if the path reaches a deadend, how does it know which valid direction it can move within the maze? I was able to define the coordinates of all the cells sorrounding a given cell and then check if any are blocked by a wall. If they are, it will check another random direction's coordinates. If they are not, then the path can move in that direction. In my solution's algorithm, I kept track of which cells had already been visited so that when backtracking, the path is not drawn in the same direction and it can continue to traverse until it reaches a logical end and then recursively backtrack until the end is reached.
