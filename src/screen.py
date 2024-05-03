@@ -301,8 +301,7 @@ class CanvasFrame(Frame):
         try:
             num_cols, num_rows = self._validate_input()
             padding_x, padding_y = self._calculate_padding(num_cols, num_rows)
-            if self.maze:
-                self.reset_maze()
+            self._clear_canvas()
 
             self.toggle_button_state("draw", False)
             self.toggle_button_state("solve", False)
@@ -356,7 +355,7 @@ class CanvasFrame(Frame):
             self.maze = None
             self.drawer = None
             self.set_state(CanvasState.IDLE)
-            self.toggle_button_state("solve", False)
+            self.toggle_button_state("solve", True)
             self.toggle_button_state("draw", True)
 
     def _bind_return(self, func: Callable):
