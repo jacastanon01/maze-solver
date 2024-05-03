@@ -22,14 +22,26 @@ This is a small application that utilizes Tkinter as a GUI for a maze. The walls
 - random module to generate random directions
 - Type hinting and docstrings to improve readability
 
+## Project Design Overview
+
+In addressing the challenge of maintaining separation between different components and structuring them effectively within the maze project, I adopted a design approach centered around modularity and encapsulation. The project architecture consists of several distinct classes, each with well-defined responsibilities and interfaces, contributing to a cohesive and maintainable codebase.
+
+### Maze Module:
+
+- **Maze Class**: This class encapsulates the properties of the maze, such as its dimensions, position, and other relevant attributes. It serves as the foundational representation of the maze structure.
+- **MazeSolver Class**: Responsible for implementing the algorithms and logic required to solve the maze. By abstracting solving functionality into a separate class, the Maze class remains focused solely on representing the maze's static properties.
+- **MazeDrawer Class**: This class facilitates the visualization of the maze by recursively drawing each cell and its walls. It operates on an instance of the Maze class, ensuring a clear separation between maze logic and rendering concerns.
+
+### GUI Abstractions:
+
+- **App Class**: Serving as the parent class, App encapsulates the Tkinter instance and provides methods for managing the application lifecycle. It establishes the entry point for the application and orchestrates interactions between different GUI components and maze logic.
+- **AppConfig Class**: Responsible for configuring the canvas and creating various widgets necessary for the user interface. By delegating widget creation to AppConfig, the main application logic remains decoupled from GUI implementation details.
+- **CanvasFrame Class**: Acting as an intermediary between user input and maze-related drawing operations, CanvasFrame abstracts away the complexities of coordinating maze visualization. It interfaces with both the GUI components and the MazeDrawer class, ensuring seamless integration between user interaction and maze rendering.
+
+Through careful application of composition and abstraction, I achieved a design that promotes maintainability, scalability, and code reusability. Each class fulfills a specific role within the application architecture, contributing to a clear separation of concerns and facilitating the synchronization of GUI and maze logic. This modular design approach fosters extensibility, allowing for easy integration of additional features or enhancements in the future.
+
 ## Learning opportunites
 
 I wanted to keep the logic related to constructing the maze and solving it in a separate class so that they can be tested separately. This was also helpful for me as I learned how to use Tkinter's Canvas widget which is useful because you don't have to create new windows every time the maze needs to be drawn. I also wanted to learn more about using unittest and writing tests in python, so that I can keep my code DRY and maintainable. I utilized mock objects so when testing certain functionality, I could test it without actually creating a window or canvas object.
-
-Another challenge was trying to keep certain sections segregated from each other and figuring out the best ways to structure them in my maze class so that the internal logic of the maze and the GUI could be in sync. My solution was to break the Maze module into three classes:
-
-- Maze class which would contain the position, height, width and other properties related to the design
-- MazeSolver class which would contain the logic for solving the maze
-- MazeDrawer class which be the interface for actually drawing the maze on the canvas
 
 My primary focus with this project was to use some data structures and algorithms in an actual project. For example, when the maze is being solved, if the path reaches a deadend, how does it know which valid direction it can move within the maze? I was able to define the coordinates of all the cells sorrounding a given cell and then check if any are blocked by a wall. If they are, it will check another random direction's coordinates. If they are not, then the path can move in that direction. In my solution's algorithm, I kept track of which cells had already been visited so that when backtracking, the path is not drawn in the same direction and it can continue to traverse until it reaches a logical end and then recursively backtrack until the end is reached.
