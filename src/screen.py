@@ -9,10 +9,11 @@ from tkinter import (
     DISABLED,
     NORMAL,
     TclError,
+    Event,
 )
 from tkinter.messagebox import showerror
 from enum import Enum
-from typing import Tuple, Callable
+from typing import Tuple, Callable, Optional
 
 
 from src.maze import Maze, MazeDrawer, MazeSolver
@@ -223,7 +224,7 @@ class CanvasFrame(Frame):
     - solve_maze(event=None) -> None:
         Solves the maze.
 
-    - reset_maze() -> None:
+    - reset_maze(event=None) -> None:
         Resets the maze.
 
     - redraw() -> None:
@@ -304,7 +305,7 @@ class CanvasFrame(Frame):
 
         return (padding_x, padding_y)
 
-    def draw_maze(self, event=None):
+    def draw_maze(self, event: Optional[Event] = None):
         try:
             num_cols, num_rows = self._validate_input()
             padding_x, padding_y = self._calculate_padding(num_cols, num_rows)
@@ -336,34 +337,36 @@ class CanvasFrame(Frame):
         except ValueError as e:
             showerror("Error", message=e)
 
-    def solve_maze(self, event=None):
+    def solve_maze(self, event: Optional[Event] = None):
         if self.window.canvas_state in [CanvasState.DRAWING, CanvasState.SOLVING]:
             self._clear_canvas()
         self.set_state(CanvasState.SOLVING)
         if self.drawer and self.maze:
             self.toggle_button_state("draw", False)
             self.toggle_button_state("solve", False)
-            # creating a new instance doesn't allow you to save any previous solutions
+
             self.maze_solver = MazeSolver(self.maze, self.drawer)
-            self.maze_solver_id = id(self.maze_solver)
+
             self.maze_solver.solve()
-            self._bind_return(self.draw_maze)
+            self._bind_return(self.reset_maze)
         else:
             showerror(title="Error", message="Must draw maze before solving it")
         self.set_state(CanvasState.IDLE)
         self.toggle_button_state("draw", True)
         self.toggle_button_state("reset", True)
 
-    def reset_maze(self):
+    def reset_maze(self, event: Optional[Event] = None):
         if hasattr(self, "maze_solver"):
-            print(self.maze_solver.solution)
             for item in self.maze_solver.solution:
                 self.canvas.delete(item)
+            self.maze_solver = None
 
-            self.__window.redraw()
-            self.set_state(CanvasState.IDLE)
-            self.toggle_button_state("solve", True)
-            self.toggle_button_state("draw", True)
+        self.maze.reset_visited_cells()
+        self.__window.redraw()
+        self.set_state(CanvasState.IDLE)
+        self.toggle_button_state("solve", True)
+        self.toggle_button_state("draw", True)
+        self._bind_return(self.solve_maze)
 
     def _bind_return(self, func: Callable):
         """
