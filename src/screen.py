@@ -90,6 +90,10 @@ class App(Frame):
         self.row_input.config(validate="key", validatecommand=(validate_int, "%P"))
         self.col_input.config(validate="key", validatecommand=(validate_int, "%P"))
 
+    @property
+    def root(self):
+        return self.__root
+
     def _enable_draw_button(self, event):
         """
         Validates that both entries have values before enabling draw button
@@ -98,10 +102,6 @@ class App(Frame):
             self.toggle_button_state("draw", True)
         else:
             self.toggle_button_state("draw", False)
-
-    @property
-    def root(self):
-        return self.__root
 
     def _create_widgets(self):
         """
@@ -126,6 +126,7 @@ class App(Frame):
 
     def _create_buttons(self):
         actions = ["draw", "solve", "reset"]
+
         for i, action in enumerate(actions):
             self.buttons[action] = Button(
                 self.control_frame,
@@ -135,9 +136,7 @@ class App(Frame):
             )
 
             self.buttons[action].grid(row=2, column=i)
-
-        self.toggle_button_state("draw", False)
-        self.toggle_button_state("solve", False)
+            self.toggle_button_state(action, False)
 
     def start(self) -> None:
         self.__root.mainloop()
@@ -344,16 +343,15 @@ class CanvasFrame(Frame):
             showerror(title="Error", message="Must draw maze before solving it")
         self.set_state(CanvasState.IDLE)
         self.toggle_button_state("draw", True)
+        self.toggle_button_state("reset", True)
 
     def reset_maze(self):
         if hasattr(self, "maze_solver"):
             print(self.maze_solver.solution)
             for item in self.maze_solver.solution:
                 self.canvas.delete(item)
-            # self.canvas.delete(self.solution_id)
+
             self.__window.redraw()
-            self.maze = None
-            self.drawer = None
             self.set_state(CanvasState.IDLE)
             self.toggle_button_state("solve", True)
             self.toggle_button_state("draw", True)
