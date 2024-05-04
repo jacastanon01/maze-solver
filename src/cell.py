@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Tuple
 
 
 @dataclass
@@ -23,7 +24,7 @@ class Line:
     point1: Point
     point2: Point
 
-    def get_points(self) -> tuple[Point, Point]:
+    def get_points(self) -> Tuple[Point, Point]:
         """Returns the two connecting points of a line"""
         return self.point1, self.point2
 
