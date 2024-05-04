@@ -1,6 +1,6 @@
 import time
 import random
-from typing import Dict, Tuple, List
+from typing import Tuple, List
 from dataclasses import dataclass
 
 from src.cell import Cell, Line, Point
@@ -34,6 +34,11 @@ class Maze:
     - cells : list[list[Cell]]
         List of cells in the maze
 
+    - start_cell : Cell
+        Cell where the maze runner starts
+
+    - end_cell : Cell
+        Cell where the maze runner ends
 
     Methods
     -----
@@ -127,23 +132,23 @@ class MazeDrawer:
 
     Methods:
     ----
-    - init_cells
+    - _init_cells
         Initializes the matrix with Cell objects
 
-    - create_cells
+    - _create_cells
         Initializes the matrix of cells and draws them to screen
 
-    - draw_cell(i: int, j: int)
+    - _draw_cell(i: int, j: int)
         Draws a cell to screen at specified row/column position
 
-    - animate
+    - _animate
         Animates maze by drawing cells one at a time and allows us to visulize our algorithm
 
-    - draw_entrance_and_exit
+    - _draw_entrance_and_exit
         Draws entrance and exit to maze by removing the top wall of the first cell and
         the bottom wall of the last cell
 
-    - break_walls_r(col : int, row : int)
+    - _break_walls_r(col : int, row : int)
         Recursive backtracking algorithm to create maze
 
     - draw_move(from_cell: Cell, to_cell: Cell, undo: bool = False) -> None:
@@ -224,7 +229,7 @@ class MazeDrawer:
 
         self._animate()
 
-    def _animate(self, path=False) -> None:
+    def _animate(self, path: bool = False) -> None:
         """
         Animates maze by drawing cells one at a time and allows us to visulize our algorithm
 
@@ -287,7 +292,7 @@ class MazeDrawer:
                     self._break_walls_r(neighbor_col, neighbor_row)
             self._draw_cell(col, row)
 
-    def draw_move(self, from_cell: Cell, to_cell: "Cell", undo=False) -> int:
+    def draw_move(self, from_cell: Cell, to_cell: "Cell", undo: bool = False) -> int:
         """
         Draws a line connecting two cells on the canvas.
         If undo is True, the line will backtrack
@@ -329,19 +334,19 @@ class MazeSolver:
 
     Attributes
     ----------
-    - maze : Maze
+    - _maze : Maze
         The maze object.
 
-    - drawer : MazeDrawer
+    - _drawer : MazeDrawer
         The maze drawer object.
 
     Methods
     -------
-    - solve() -> bool:
-        Solves the maze using depth-first traversal to find the exit path.
-
     - _dfs_r(col: int, row: int) -> bool:
         Performs depth-first search to find the end of the maze.
+
+    - solve() -> bool:
+        Solves the maze using depth-first traversal to find the exit path.
     """
 
     def __init__(self, maze: Maze, md: MazeDrawer):
@@ -352,7 +357,6 @@ class MazeSolver:
         """
         The _dfs_r method returns True if the current cell is an end cell,
         OR if it leads to the end cell. It returns False if the current cell is a loser cell.
-        Performs depth-first solution to find end of maze
         """
 
         current_cell = self._maze.get_cell(col, row)
@@ -405,7 +409,7 @@ class MazeSolver:
 
     def solve(self) -> bool:
         """
-        Solves maze using depth-first traversal to find exit path
+        Solves maze using depth-first search to find exit path
         Calls self._dfs_r from the first cell
         return self._dfs_r(0, 0)
         """

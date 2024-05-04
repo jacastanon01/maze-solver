@@ -186,7 +186,7 @@ class AppConfig(Frame):
             self.app.root.update_idletasks()
             self.app.root.update()
 
-    def toggle_button_state(self, button_text: str, state: bool = None):
+    def toggle_button_state(self, button_text: str, state: bool):
         """
         Explictly set button state. If no state is passed, toggle the button's
         current state.
@@ -201,14 +201,11 @@ class AppConfig(Frame):
         """
         btn = self.buttons.get(button_text)
         if btn is None:
-            raise ValueError("Invalid button")
-        # if state is explicitly defined, set button to it
-        if state is not None:
-            btn["state"] = NORMAL if state else DISABLED
-        else:
-            # Only togglable when canvas is idle
-            if self.canvas_state == CanvasState.IDLE:
-                btn["state"] = NORMAL if btn["state"] == DISABLED else DISABLED
+            raise ValueError("Invalid button text")
+
+        # Only togglable when canvas is idle
+        if self.canvas_state == CanvasState.IDLE:
+            btn["state"] = NORMAL if btn["state"] == DISABLED else DISABLED
 
 
 class CanvasFrame(Frame):
@@ -246,7 +243,7 @@ class CanvasFrame(Frame):
     - set_state(state: CanvasState) -> None:
         Sets the state of the canvas.
 
-    - toggle_button_state(value: str, state: bool = None) -> None:
+    - toggle_button_state(value: str, state: bool) -> None:
         Toggles the state of a button.
 
     - create_canvas() -> None:
@@ -295,6 +292,7 @@ class CanvasFrame(Frame):
     def _calculate_padding(self, num_cols: int, num_rows: int) -> Tuple[int, int]:
         """
         Takes user input of columns and rows to calculate how much padding to put around the maze
+        Returns padding value for x and y : Tuple[int, int]
 
         Parameters
         ----------
@@ -323,7 +321,7 @@ class CanvasFrame(Frame):
     def set_state(self, state: CanvasState):
         self.parent_frame.canvas_state = state
 
-    def toggle_button_state(self, value: str, state: bool = None):
+    def toggle_button_state(self, value: str, state: bool):
         self.parent_frame.toggle_button_state(value, state)
 
     def create_canvas(self):
