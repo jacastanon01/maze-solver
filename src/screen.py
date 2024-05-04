@@ -23,6 +23,13 @@ WINDOW_SIZE = 800
 
 
 class CanvasState(Enum):
+    """
+    Contains three canvas states:
+    - IDLE: the canvas is not being used
+    - DRAWING: the canvas is being used to draw the maze
+    - SOLVING: the canvas is being used to solve the maze
+    """
+
     IDLE = 1
     DRAWING = 2
     SOLVING = 3
@@ -50,7 +57,7 @@ class App:
     def __init__(self, master: Tk):
         # instantiaing the Tkinter window and setting size
         self.__root = master
-        self.__root.geometry("800x800")
+        self.__root.geometry(f"{WINDOW_SIZE}x{WINDOW_SIZE}")
         self.__root.title("Maze Solver")
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
 
@@ -88,22 +95,21 @@ class AppConfig(Frame):
 
     Attributes
     ----------
-    - root : Tk
-        The Tkinter root instance.
+    - app : App
 
     - control_frame : Frame
 
 
     Methods
     -------
+    - _enable_draw_button(event: Event) -> None:
+        Enables the draw button if the row and column fields are valid.
+
     - _create_widgets() -> None:
         Defines the frame for widget components.
 
     - _create_buttons() -> None:
         Creates buttons for drawing, solving, and resetting the maze.
-
-    - set_state(state: State) -> None:
-        Sets the state of the window.
 
     - toggle_button_state(value: str, state: Optional[bool] = None) -> None:
         Toggles the state of a button based on the current state of the canvas.
@@ -211,31 +217,43 @@ class CanvasFrame(Frame):
 
     Attributes
     ----------
-    - parent_frame : App
-        The parent window instance.
-
-    - buttons : Dict[str, Button]
-        Dictionary of buttons associated with the canvas.
-
-    - canvas : Canvas
-        The Tkinter canvas instance.
-
-    - is_drawing : bool
-        Flag indicating whether drawing is in progress.
+    - parent_frame : AppConfig
+        The parent frame instance.
 
     - maze : Maze
         The maze object associated with the canvas.
 
+    - canvas : Canvas
+        The Tkinter canvas instance.
+
+    - canvas_state : CanvasState
+        The state of the canvas.
+
     Methods
     -------
-    - draw_line(line, fill_color="black") -> None:
-        Draws a line on the canvas.
-
     - _clear_canvas() -> None:
         Clears the canvas.
 
-    - _calculate_padding() -> Tuple[int, int, int, int, int, int]:
-        Calculates window sizes based on user input.
+    - _validate_input() -> Tuple[int, int]:
+        Validates the input of rows and columns.
+
+    - _calculate_padding(num_cols: int, num_rows: int) -> Tuple[int, int]:
+        Calculates the padding around the maze based on the number of rows and columns.
+
+    - _bind_return(func: Callable) -> None:
+        Binds the return key to a function.
+
+    - set_state(state: CanvasState) -> None:
+        Sets the state of the canvas.
+
+    - toggle_button_state(value: str, state: bool = None) -> None:
+        Toggles the state of a button.
+
+    - create_canvas() -> None:
+        Creates the canvas.
+
+    - draw_line(line: Line, fill_color="black") -> int:
+        Draws a line on the canvas.
 
     - draw_maze(event=None) -> None:
         Draws the maze based on user input.
@@ -245,9 +263,6 @@ class CanvasFrame(Frame):
 
     - reset_maze(event=None) -> None:
         Resets the maze.
-
-    - _bind_return(func: Callable) -> None:
-        Binds the return key to a function.
     """
 
     def __init__(self, parent_frame: AppConfig):
