@@ -4,24 +4,6 @@
 
 This is a small application that utilizes a Tkinter-powered GUI showcasing maze generation and solving. Embracing randomness, the maze's intricate walls are dynamically crafted. Witness the maze-solving journey unfold with a depth-first search algorithm, observing each step as it navigates and backtracks until reaching the elusive exit.
 
-## Demo 🚀
-
-- Install python3 on your machine
-- Clone this repo
-- Run `./main.sh` to launch GUI application
-- Enter a number for rows and columns in the text box at the top of the window
-- Click the "Generate Maze" button or Enter to generate a new maze
-- Click the "Solve Maze" button or Enter to solve the maze
-- Click the "Reset Maze" button or Enter after solving maze to reset the maze
-
-## Technologies Used 🛠️
-
-- Python 3.12.1
-- Tkinter
-- unittest library for tests
-- random module to generate random directions
-- Type hinting and docstrings to improve readability
-
 ## Project Design Overview 📋
 
 In addressing the challenge of maintaining separation between different components and structuring them effectively within the maze project, I adopted a design approach centered around modularity and encapsulation. The project architecture consists of several distinct classes, each with well-defined responsibilities and interfaces, contributing to a cohesive and maintainable codebase.
@@ -45,3 +27,21 @@ Through careful application of composition and abstraction, I achieved a design 
 Throughout this project, my focus was on applying data structures and algorithms in a practical setting. I structured the logic related to maze construction and solving into separate classes to facilitate modular testing. This separation also allowed me to delve into the usage of Tkinter's Canvas widget, which proved invaluable for drawing the maze without the need to create new windows each time. By leveraging the unittest framework and employing mock objects, I could test specific functionalities without instantiating actual window or canvas objects. This approach not only helped in ensuring the correctness of my code but also reinforced the principles of DRY (Don't Repeat Yourself) and maintainability.
 
 One of the intriguing challenges I encountered was determining valid directions for path traversal during maze solving. I devised an algorithm that identifies surrounding cells' coordinates and evaluates their accessibility based on wall obstruction. If a direction is blocked, the algorithm explores alternate paths until finding an unobstructed route. By tracking visited cells and implementing recursive backtracking, the algorithm effectively navigates through the maze, ensuring thorough exploration and efficient pathfinding.
+
+## Demo 🚀
+
+- Install python3 on your machine
+- Clone this repo
+- Run `./main.sh` to launch GUI application
+- Enter a number for rows and columns in the text box at the top of the window
+- Click the "Generate Maze" button or Enter to generate a new maze
+- Click the "Solve Maze" button or Enter to solve the maze
+- Click the "Reset Maze" button or Enter after solving maze to reset the maze
+
+## Technologies Used 🛠️
+
+- Python 3.12.1
+- Tkinter
+- unittest library for tests
+- random module to generate random directions
+- Type hinting and docstrings to improve readability
