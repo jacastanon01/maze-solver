@@ -281,7 +281,7 @@ class MazeDrawer:
                 0 <= neighbor_row < self._maze.num_rows
                 and 0 <= neighbor_col < self._maze.num_cols
             ):
-                neighbor = self._maze.get_cell(neighbor_col, neighbor_row)
+                neighbor = self._maze.get_cell(*neighbor_coords)
 
                 if neighbor and not neighbor.visited:
                     # Break the wall between current cell and neighbor
@@ -289,7 +289,7 @@ class MazeDrawer:
                     setattr(neighbor, f"has_{opposite_direction}_wall", False)
 
                     # Recursively call the function for the neighbor cell
-                    self._break_walls_r(neighbor_col, neighbor_row)
+                    self._break_walls_r(*neighbor_coords)
             self._draw_cell(col, row)
 
     def draw_move(self, from_cell: Cell, to_cell: "Cell", undo: bool = False) -> int:
@@ -372,7 +372,6 @@ class MazeSolver:
             neighbor_coords, opposite_direction = self._maze.get_neighbor_coords(
                 col, row, direction
             )
-            neighbor = self._maze.get_cell(*neighbor_coords)
 
             neighbor_col, neighbor_row = neighbor_coords
 
@@ -381,7 +380,7 @@ class MazeSolver:
                 0 <= neighbor_row < self._maze.num_rows
                 and 0 <= neighbor_col < self._maze.num_cols
             ):
-
+                neighbor = self._maze.get_cell(*neighbor_coords)
                 # If the neighbor hasn't been visited, and it doesn't have a wall in the opposite direction, then we can move to it
                 if (
                     neighbor
@@ -392,7 +391,7 @@ class MazeSolver:
                     line_id = self._drawer.draw_move(current_cell, neighbor)
                     self.solution.add(line_id)
                     self._drawer._animate(path=True)
-                    if self._dfs_r(neighbor_col, neighbor_row):
+                    if self._dfs_r(*neighbor_coords):
                         # if neighbor is last cell, return True
                         return True
                     else:
@@ -403,7 +402,7 @@ class MazeSolver:
                         self.solution.add(line_id)
                         self._drawer._animate(path=True)
 
-                    self._dfs_r(neighbor_col, neighbor_row)
+                    self._dfs_r(*neighbor_coords)
 
         return False
 
